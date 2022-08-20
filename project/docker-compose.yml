@@ -1,0 +1,58 @@
+# dev version
+version: "3.9"
+
+services:
+  block-listener-service:
+    build:
+      context: ./../block-listener-service
+      dockerfile: ./../block-listener-service/block-listener.dockerfile
+    container_name: block-listener
+    restart: always
+    expose:
+      - "50001"
+    depends_on:
+      - mongo
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - leveldb-data:/app/db-data/leveldb
+    env_file:
+      - ./env/block-listener-service.env
+    
+  broker-service:
+    build:
+      context: ./../broker-service
+      dockerfile: ./../broker-service/broker.dockerfile
+    container_name: broker
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - block-listener-service
+    deploy:
+      mode: replicated
+      replicas: 1
+    env_file:
+      - ./env/broker-service.env
+
+  mongo:
+    image: "mongo:latest"
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    env_file:
+      - ./env/mongo.env
+    volumes:
+      # config mongo when it start for the first time. When mongo start
+      # for the first time, it will execute all file with extensions *.sh and *.js
+      # with MONGO_INTIDB_DATABASE, *.js will be executed by mongo to init database
+      - ./scripts/mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+    external: true
+  leveldb-data:
+    external: true

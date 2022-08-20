@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package listener;
+
+option go_package="/listener";
+
+service BlockListener {
+  rpc AddAddress(Address) returns (AddResp){}
+}
+
+message Address {
+  string address = 1;
+}
+
+message AddResp {
+  string msg = 1;
+  bool status = 2;
+}
