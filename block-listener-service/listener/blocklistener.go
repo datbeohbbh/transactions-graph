@@ -1,10 +1,12 @@
-package main
+package listener
 
 import (
 	"block-listener/data"
-	"context"
+	context "context"
 	"fmt"
 	"log"
+	"strconv"
+	"sync/atomic"
 	"time"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
@@ -12,33 +14,60 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 )
 
-func (bl *BlockListener) blockListener(ctx context.Context) error {
+const (
+	USER_ACCOUNT     = "user"
+	CONTRACT_ACCOUNT = "contract"
+)
+
+func (bl *BlockListener) Start(ctx context.Context, LOW, HIGH int) error {
 	header := make(chan *types.Header)
 	subs, err := bl.ethClient.SubscribeNewHead(ctx, header)
 	if err != nil {
 		log.Printf("failed on subscribe for block header: %v", err)
 		return err
 	}
+	defer subs.Unsubscribe()
+
+	var received, done int64 = 0, 0
+	ticker := time.NewTicker(time.Minute)
 
 	for {
 		select {
+		case t := <-ticker.C:
+			receivedUntil := atomic.LoadInt64(&received)
+			doneUntil := atomic.LoadInt64(&done)
+			rateDonePerReceived := 0.0
+			if receivedUntil > 0 {
+				rateDonePerReceived = (float64(doneUntil) / float64(receivedUntil)) * 100.0
+			}
+			log.Printf("Stats for block listening on range: [%d, %d)\n", LOW, HIGH)
+			log.Printf("Stats %v - Received: %d --- Done: %d --- Rate: %.1f%s", t, receivedUntil, doneUntil, rateDonePerReceived, "%")
 		case err = <-subs.Err():
 			log.Printf("failed when listening for block header: %v", err)
 			return err
 		case newHeader := <-header:
-			go func() {
-				err := bl.processBlock(ctx, newHeader)
-				if err != nil {
-					log.Printf("failed on process block: %v", err)
-					panic(err)
-				}
-			}()
+			blockNumber := newHeader.Number.String()
+			lastDigit, err := strconv.Atoi(blockNumber[len(blockNumber)-1:])
+			if err != nil {
+				panic(err)
+			}
+			if LOW <= lastDigit && lastDigit < HIGH {
+				atomic.AddInt64(&received, 1)
+				go func() {
+					err := bl.processBlock(ctx, newHeader)
+					if err != nil {
+						log.Printf("failed on process block: %v", err)
+						panic(err)
+					}
+					atomic.AddInt64(&done, 1)
+				}()
+			}
 		}
 	}
 }
 
 func (bl *BlockListener) processBlock(ctx context.Context, header *types.Header) error {
-	log.Println("start process block: ", header.Number.String())
+	log.Println("start processing block: ", header.Number.String())
 	block, err := bl.ethClient.BlockByNumber(ctx, header.Number)
 
 	// In experience, there will be some momment that can not find the block.
@@ -58,6 +87,7 @@ func (bl *BlockListener) processBlock(ctx context.Context, header *types.Header)
 	recursive := []string{}
 
 	for i, tx := range block.Transactions() {
+		// @TODO: optimize needed HERE!!
 		receipt, err := bind.WaitMined(ctx, bl.ethClient, tx)
 		if err != nil {
 			return fmt.Errorf("failed on get receipt: %v", err)
@@ -69,8 +99,12 @@ func (bl *BlockListener) processBlock(ctx context.Context, header *types.Header)
 			return fmt.Errorf("failed on get sender: %v", err)
 		}
 
-		if has, _ := bl.levdb.Has([]byte(from.Hex())); has {
-			//log.Printf("Block: %s - update out edge - %s", header.Number.String(), from.Hex())
+		// process `from`
+		tracked, err := bl.Tracking(ctx, from.Hex())
+		if err != nil {
+			return fmt.Errorf("failed on process block: %v", err)
+		}
+		if tracked {
 			err := bl.processTx(ctx, &from, to, tx, header, receipt, data.OutEdge)
 			if err != nil {
 				return fmt.Errorf("failed on process OutEdge %v", err)
@@ -79,9 +113,14 @@ func (bl *BlockListener) processBlock(ctx context.Context, header *types.Header)
 				recursive = append(recursive, to.Hex())
 			}
 		}
+
+		// process `to`
 		if to != nil {
-			if has, _ := bl.levdb.Has([]byte(to.Hex())); has {
-				//log.Printf("Block: %s - update in edge - %s", header.Number.String(), to.Hex())
+			tracked, err = bl.Tracking(ctx, to.Hex())
+			if err != nil {
+				return fmt.Errorf("failed on process block: %v", err)
+			}
+			if tracked {
 				err := bl.processTx(ctx, to, &from, tx, header, receipt, data.InEdge)
 				if err != nil {
 					return fmt.Errorf("failed on process InEdge %v", err)
@@ -90,35 +129,29 @@ func (bl *BlockListener) processBlock(ctx context.Context, header *types.Header)
 		}
 	}
 
-	err = bl.addRecursiveAddress(recursive)
+	err = bl.addRecursiveAddress(ctx, recursive)
 	if err != nil {
 		return fmt.Errorf("failed on add recursive address: %v", err)
 	}
-	log.Println("done process block: ", header.Number.String())
-
+	log.Println("done processed block: ", header.Number.String())
 	return nil
 }
 
-func (bl *BlockListener) addRecursiveAddress(recursive []string) error {
+func (bl *BlockListener) addRecursiveAddress(ctx context.Context, recursive []string) error {
 	for _, recAddr := range recursive {
-		if has, err := bl.HasKey(recAddr); err != nil {
-			return fmt.Errorf("failed on add recursive address (has method): %v", err)
-		} else if has {
-			continue
-		}
 		accountType, err := bl.GetAccountType(recAddr)
 		if err != nil {
 			return fmt.Errorf("failed on add recursive address (get account type method): %v", err)
 		}
-		if err := bl.PutKey(recAddr, accountType); err != nil {
-			return fmt.Errorf("failed on add recursive address (put method): %v", err)
+		if _, err := bl.InsertTrackedAddress(ctx, recAddr, accountType); err != nil {
+			return fmt.Errorf("failed on add recursive address (insert method): %v", err)
 		}
 	}
 	return nil
 }
 
 func (bl *BlockListener) processTx(ctx context.Context, from, to *common.Address, tx *types.Transaction, header *types.Header, receipt *types.Receipt, edgeDirect int) error {
-	accountType := "contract creation"
+	accountType := "contract"
 	if from != nil {
 		at, err := bl.GetAccountType(from.Hex())
 		if err != nil {
@@ -135,7 +168,7 @@ func (bl *BlockListener) processTx(ctx context.Context, from, to *common.Address
 
 func processTxEdge(tx *types.Transaction, header *types.Header, receipt *types.Receipt, addr *common.Address, edgeDirect int) (*data.TxEdge, []*data.Event) {
 	createTime := time.Unix(int64(header.Time), 0).UTC()
-	address := ""
+	address := "contract creation"
 	if addr != nil {
 		address = addr.Hex()
 	}

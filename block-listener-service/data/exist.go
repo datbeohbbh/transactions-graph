@@ -7,9 +7,9 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (graphDB *GraphDB) ExistedVertex(ctx context.Context, address string) (bool, error) {
+func (graphDB *GraphDB) ExistedAddress(ctx context.Context, coll, address string) (bool, error) {
 	filter := bson.D{{"address", address}}
-	count, err := graphDB.GetCollection("vertex").CountDocuments(ctx, filter)
+	count, err := graphDB.GetCollection(coll).CountDocuments(ctx, filter)
 	if err != nil {
 		return false, fmt.Errorf("failed on check existance of address %s", address)
 	}

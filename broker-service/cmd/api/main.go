@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -14,8 +14,7 @@ import (
 )
 
 var (
-	gRPCPort = os.Getenv("GRPC_PORT")
-	webPort  = os.Getenv("WEB_PORT")
+	webPort = os.Getenv("WEB_PORT")
 )
 
 type Broker struct {
@@ -49,14 +48,18 @@ func main() {
 func connectToGrpcServer(ctx context.Context) (*grpc.ClientConn, error) {
 	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
-	SERVER_NAME := os.Getenv("GRPC_SERVICE")
+
+	SERVER_NAME := os.Getenv("GRPC_SERVER")
+	NGINX_GRPC_PORT := os.Getenv("NGINX_GRPC_PORT")
+	log.Printf("connect to nginx grpc load balancer %s", NGINX_GRPC_PORT)
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithBlock(),
 	}
-	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", SERVER_NAME, gRPCPort), opts...)
+
+	conn, err := grpc.DialContext(ctx, fmt.Sprintf("%s:%s", SERVER_NAME, NGINX_GRPC_PORT), opts...)
 	if err != nil {
-		return nil, errors.New("failed on connect to grpc server")
+		return nil, fmt.Errorf("failed on connect to grpc server: %v", err)
 	}
 	return conn, nil
 }

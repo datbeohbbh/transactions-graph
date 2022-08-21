@@ -13,7 +13,7 @@ func (graphdb *GraphDB) UpdateDB(pctx context.Context, vertex *Vertex, txEdge *T
 		errc := make(chan error)
 		go func() {
 			defer close(errc)
-			found, err := graphdb.ExistedVertex(ctx, vertex.Address)
+			found, err := graphdb.ExistedAddress(ctx, "vertex", vertex.Address)
 			if err != nil {
 				errc <- err
 			}

@@ -6,17 +6,18 @@ services:
     build:
       context: ./../block-listener-service
       dockerfile: ./../block-listener-service/block-listener.dockerfile
-    container_name: block-listener
+    #container_name: block-listener
     restart: always
-    expose:
+    ports:
       - "50001"
     depends_on:
       - mongo
     deploy:
       mode: replicated
-      replicas: 1
+      replicas: 5
     volumes:
-      - leveldb-data:/app/db-data/leveldb
+      # auto create volume for each replicas
+      - /app/db-data/leveldb
     env_file:
       - ./env/block-listener-service.env
     
@@ -30,11 +31,23 @@ services:
       - "8080:8080"
     depends_on:
       - block-listener-service
+      - nginx
     deploy:
       mode: replicated
       replicas: 1
     env_file:
       - ./env/broker-service.env
+    
+  nginx:
+    image: "nginx:latest"
+    container_name: nginx
+    ports:
+      - "50052:50052"
+    depends_on:
+      - block-listener-service
+    volumes:
+      - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
+    restart: always
 
   mongo:
     image: "mongo:latest"
@@ -53,6 +66,4 @@ services:
 
 volumes:
   mongo-data:
-    external: true
-  leveldb-data:
     external: true
