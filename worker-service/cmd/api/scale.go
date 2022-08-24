@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"os"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -19,6 +20,7 @@ func scaleMethod(ctx context.Context) (int, error) {
 	if err != nil {
 		return -1, fmt.Errorf("failed on connect to mongo: %v", err)
 	}
+	defer mongoConn.Disconnect(ctx)
 
 	type HostName struct {
 		Name     string   `json:"name" bson:"name"`
@@ -54,6 +56,7 @@ func scaleMethod(ctx context.Context) (int, error) {
 		return -1, fmt.Errorf("failed on get host list: %v", err)
 	}
 
+	log.Println("Getting Serving range")
 	for i := len(hostList.HostList) - 1; i >= 0; i-- {
 		if hostList.HostList[i] == hostname {
 			return i % 5, nil

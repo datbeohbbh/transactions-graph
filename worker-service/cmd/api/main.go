@@ -1,7 +1,7 @@
 package main
 
 import (
-	"block-listener/dao"
+	gd "block-listener/graph-data"
 	"block-listener/listener"
 	"context"
 	"errors"
@@ -20,11 +20,6 @@ var (
 func main() {
 	if gRPCPort == "" {
 		panic(errors.New("undefined gRPC port"))
-	}
-	listen, err := net.Listen("tcp", fmt.Sprintf(":%s", gRPCPort))
-	if err != nil {
-		log.Printf("failed to listen on port %s: %v", gRPCPort, err)
-		panic(err)
 	}
 
 	grpcServer := grpc.NewServer()
@@ -49,20 +44,18 @@ func main() {
 
 	mongoConn, err = connectToMongoDB(os.Getenv("DAO_MONGODB_URI"), os.Getenv("DAO_MONGO_DATABASE"), os.Getenv("DAO_MONGO_USERNAME"), os.Getenv("DAO_MONGO_PASSWORD"))
 	if err != nil {
-		panic(fmt.Errorf("failed on connect to mongo db for DAO"))
+		panic(fmt.Errorf("failed on connect to mongo db for graph data"))
 	}
-	daoHandler := dao.New(mongoConn, graphDBInstance)
-	defer daoHandler.Close()
+
+	graphDataHandler := gd.New(mongoConn, graphDBInstance)
+	defer graphDataHandler.Close()
 
 	listener.RegisterBlockListenerServer(grpcServer, blockListenerHandler)
-	dao.RegisterDAOServer(grpcServer, daoHandler)
-
-	log.Printf("gRPC server is listening on port: %s", gRPCPort)
-	defer grpcServer.Stop()
+	gd.RegisterGraphDataServer(grpcServer, graphDataHandler)
 
 	LOW, err := scaleMethod(context.Background())
 	if err != nil || LOW == -1 {
-		panic(fmt.Errorf("failon on get range for scaling: %d - %v", LOW, err))
+		panic(fmt.Errorf("fail on on get range for scaling: %d - %v", LOW, err))
 	}
 	log.Printf("serving block with last digit in range [%d, %d): ", 2*LOW, 2*(LOW+1))
 
@@ -74,8 +67,29 @@ func main() {
 		}
 	}()
 
-	if err := grpcServer.Serve(listen); err != nil {
-		log.Printf("failed to listen on port %s: %v", gRPCPort, err)
-		panic(err)
+	defer grpcServer.Stop()
+
+	// because run each server in goroutine so use a block channel to
+	// prevent main thread cancel all its child.
+	running := make(chan int)
+
+	startServer := func(lis net.Listener, port string) {
+		log.Printf("gRPC server is listening on port: %s", port)
+
+		if err := grpcServer.Serve(lis); err != nil {
+			log.Printf("failed to listen on port %s: %v", port, err)
+			panic(err)
+		}
 	}
+
+	for _, port := range []string{"50001", "50002"} {
+		listen, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
+		if err != nil {
+			log.Printf("failed to listen on port %s: %v", port, err)
+			panic(err)
+		}
+		go startServer(listen, port)
+	}
+
+	<-running
 }

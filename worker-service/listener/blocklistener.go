@@ -40,8 +40,8 @@ func (bl *BlockListener) Start(ctx context.Context, LOW, HIGH int) error {
 			if receivedUntil > 0 {
 				rateDonePerReceived = (float64(doneUntil) / float64(receivedUntil)) * 100.0
 			}
-			log.Printf("Stats for block listening on range: [%d, %d)\n", LOW, HIGH)
-			log.Printf("Stats %v - Received: %d --- Done: %d --- Rate: %.1f%s", t, receivedUntil, doneUntil, rateDonePerReceived, "%")
+			log.Printf("listener #%d: serving on range [%d, %d)\n", (LOW>>1)+1, LOW, HIGH)
+			log.Printf("Stats %v:\n|  Received: %d\n|   Done: %d\n|  Rate: %.1f%s\n", t, receivedUntil, doneUntil, rateDonePerReceived, "%")
 		case err = <-subs.Err():
 			log.Printf("failed when listening for block header: %v", err)
 			return err
@@ -87,40 +87,47 @@ func (bl *BlockListener) processBlock(ctx context.Context, header *types.Header)
 	recursive := []string{}
 
 	for i, tx := range block.Transactions() {
-		// @TODO: optimize needed HERE!!
-		receipt, err := bind.WaitMined(ctx, bl.ethClient, tx)
-		if err != nil {
-			return fmt.Errorf("failed on get receipt: %v", err)
-		}
-
-		to := tx.To()
 		from, err := bl.ethClient.TransactionSender(ctx, tx, block.Hash(), uint(i))
 		if err != nil {
 			return fmt.Errorf("failed on get sender: %v", err)
 		}
+		to := tx.To()
 
-		// process `from`
-		tracked, err := bl.Tracking(ctx, from.Hex())
+		// check if tracking `from`
+		trackedFrom, err := bl.Tracking(ctx, from.Hex())
 		if err != nil {
-			return fmt.Errorf("failed on process block: %v", err)
+			return fmt.Errorf("failed on check if tracking `from` %s : %v", from.Hex(), err)
 		}
-		if tracked {
-			err := bl.processTx(ctx, &from, to, tx, header, receipt, data.OutEdge)
+
+		// check if tracking `to`
+		trackedTo := false
+		if to != nil {
+			trackedTo, err = bl.Tracking(ctx, to.Hex())
 			if err != nil {
-				return fmt.Errorf("failed on process OutEdge %v", err)
-			}
-			if to != nil {
-				recursive = append(recursive, to.Hex())
+				return fmt.Errorf("failed on check if tracking `to` %s : %v", to.Hex(), err)
 			}
 		}
 
-		// process `to`
-		if to != nil {
-			tracked, err = bl.Tracking(ctx, to.Hex())
+		var receipt *types.Receipt
+		if trackedFrom || trackedTo {
+			// @TODO: optimize needed HERE!!
+			receipt, err = bind.WaitMined(ctx, bl.ethClient, tx)
 			if err != nil {
-				return fmt.Errorf("failed on process block: %v", err)
+				return fmt.Errorf("failed on get receipt: %v", err)
 			}
-			if tracked {
+
+			if trackedFrom {
+				err := bl.processTx(ctx, &from, to, tx, header, receipt, data.OutEdge)
+				if err != nil {
+					return fmt.Errorf("failed on process OutEdge %v", err)
+				}
+				if to != nil {
+					recursive = append(recursive, to.Hex())
+				}
+			}
+
+			// process `to`
+			if to != nil && trackedTo {
 				err := bl.processTx(ctx, to, &from, tx, header, receipt, data.InEdge)
 				if err != nil {
 					return fmt.Errorf("failed on process InEdge %v", err)
