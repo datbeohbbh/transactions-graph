@@ -20,12 +20,3 @@
 # Go workspace file
 *.code-workspace
 
-# generated .proto file
-*.pb.go
-
-# sensitive config file
-project/env/*.env
-
-project/scripts/*.js
-
-project/scripts/*.sh
