@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package address;
+
+option go_package="/address";
+
+service AddressManager {
+  rpc AddAddress(Address) returns (Response){}
+  rpc RemoveAddress(Address) returns (Response){};
+  rpc IsTracking(Address) returns (Response) {}
+}
+
+message Address {
+  string address = 1;
+}
+
+message Response{
+  bool error = 1;
+  string msg = 2;
+
+  enum StatusCode {
+    FAIL = 0;
+    ADDED = 1;
+    REMOVED = 2;
+    TRACKED = 3;
+    NOT_EXIST = 4;
+  }
+
+  StatusCode status = 3;
+}

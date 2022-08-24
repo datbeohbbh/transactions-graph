@@ -1,4 +1,4 @@
-module block-listener
+module worker
 
 go 1.19
 

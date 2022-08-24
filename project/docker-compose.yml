@@ -2,11 +2,10 @@
 version: "3.9"
 
 services:
-  block-listener-service:
+  worker-service:
     build:
-      context: ./../block-listener-service
-      dockerfile: ./../block-listener-service/block-listener.dockerfile
-    #container_name: block-listener
+      context: ./../worker-service
+      dockerfile: ./../worker-service/worker.dockerfile
     restart: always
     ports:
       - "50001"
@@ -14,12 +13,9 @@ services:
       - mongo
     deploy:
       mode: replicated
-      replicas: 5
-    volumes:
-      # auto create volume for each replicas
-      - /app/db-data/leveldb
+      replicas: 1
     env_file:
-      - ./env/block-listener-service.env
+      - ./env/worker-service.env
     
   broker-service:
     build:
@@ -30,13 +26,28 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - block-listener-service
+      - worker-service
       - nginx
     deploy:
       mode: replicated
       replicas: 1
     env_file:
       - ./env/broker-service.env
+
+  address-manager-service:
+    build:
+      context: ./../address-manager-service
+      dockerfile: ./../address-manager-service/address-manager-service.dockerfile
+    restart: always
+    ports:
+      - "50002"
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      - worker-service
+    env_file:
+      - ./env/address-manager.env
     
   nginx:
     image: "nginx:latest"
@@ -44,7 +55,7 @@ services:
     ports:
       - "50052:50052"
     depends_on:
-      - block-listener-service
+      - worker
     volumes:
       - ./conf/nginx.conf:/etc/nginx/nginx.conf:ro
     restart: always

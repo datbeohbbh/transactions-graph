@@ -1,14 +1,13 @@
 package main
 
 import (
-	gd "block-listener/graph-data"
-	"block-listener/listener"
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"net"
 	"os"
+	"worker/dao"
+	worker "worker/worker"
 
 	"google.golang.org/grpc"
 )
@@ -18,10 +17,6 @@ var (
 )
 
 func main() {
-	if gRPCPort == "" {
-		panic(errors.New("undefined gRPC port"))
-	}
-
 	grpcServer := grpc.NewServer()
 
 	ethConn, err := connectToEthereumNode(os.Getenv("NODE_URL"))
@@ -34,34 +29,19 @@ func main() {
 		panic(fmt.Errorf("failed on connect to mongo: %v", err))
 	}
 
-	graphDBInstance, err := connectToGraphDB(mongoConn, os.Getenv("MONGO_DATABASE"))
+	dao := dao.New(os.Getenv("MONGO_DATABASE"), connectToDB(mongoConn, os.Getenv("MONGO_DATABASE")))
 	if err != nil {
 		panic(fmt.Errorf("failed on get graphDB instance: %v", err))
 	}
 
-	blockListenerHandler := listener.New(ethConn, mongoConn, graphDBInstance)
-	defer blockListenerHandler.Close()
+	blockWorker := worker.New(ethConn, mongoConn, dao)
+	defer blockWorker.Close()
 
-	mongoConn, err = connectToMongoDB(os.Getenv("DAO_MONGODB_URI"), os.Getenv("DAO_MONGO_DATABASE"), os.Getenv("DAO_MONGO_USERNAME"), os.Getenv("DAO_MONGO_PASSWORD"))
-	if err != nil {
-		panic(fmt.Errorf("failed on connect to mongo db for graph data"))
-	}
-
-	graphDataHandler := gd.New(mongoConn, graphDBInstance)
-	defer graphDataHandler.Close()
-
-	listener.RegisterBlockListenerServer(grpcServer, blockListenerHandler)
-	gd.RegisterGraphDataServer(grpcServer, graphDataHandler)
-
-	LOW, err := scaleMethod(context.Background())
-	if err != nil || LOW == -1 {
-		panic(fmt.Errorf("fail on on get range for scaling: %d - %v", LOW, err))
-	}
-	log.Printf("serving block with last digit in range [%d, %d): ", 2*LOW, 2*(LOW+1))
+	worker.RegisterWorkerServer(grpcServer, blockWorker)
 
 	log.Println("Start listening new block")
 	go func() {
-		err := blockListenerHandler.Start(context.Background(), 2*LOW, 2*(LOW+1))
+		err := blockWorker.Start(context.Background())
 		if err != nil {
 			panic(err)
 		}
@@ -82,7 +62,7 @@ func main() {
 		}
 	}
 
-	for _, port := range []string{"50001", "50002"} {
+	for _, port := range []string{"50001"} {
 		listen, err := net.Listen("tcp", fmt.Sprintf(":%s", port))
 		if err != nil {
 			log.Printf("failed to listen on port %s: %v", port, err)

@@ -5,7 +5,6 @@ import (
 	"errors"
 	"log"
 
-	"github.com/ethereum/go-ethereum/ethclient"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -41,18 +40,4 @@ func connectToMongoDB(mongoUri, mongoDatabase, mongoUsername, mongoPassword stri
 
 func connectToDB(mongoConn *mongo.Client, dbName string) *mongo.Database {
 	return mongoConn.Database(dbName)
-}
-
-func connectToEthereumNode(nodeUrl string) (*ethclient.Client, error) {
-	if nodeUrl == "" {
-		return nil, errors.New("undefined node url")
-	}
-
-	conn, err := ethclient.Dial(nodeUrl)
-	if err != nil {
-		return nil, err
-	}
-
-	log.Println("connected to Ethereum node")
-	return conn, nil
 }

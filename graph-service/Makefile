@@ -1,12 +1,12 @@
 DIR=$(shell pwd)
 
-WORKER_DIR=$(DIR)/worker
+GRAPH_DIR=$(DIR)/graph-data
 
-gen-proto-worker: 
-	cd $(WORKER_DIR) && protoc \
+gen-proto-graph: 
+	cd $(GRAPH_DIR) && protoc \
 	--go_out=. --go_opt=paths=source_relative \
 	--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-	./worker.proto
+	./graph.proto
 
 format:
 	go fmt ./...
