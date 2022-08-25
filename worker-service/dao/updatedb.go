@@ -35,7 +35,7 @@ func (dao *DAO) UpdateDB(pctx context.Context, vertex *Vertex, txEdge *TxEdge, e
 
 	select {
 	case err := <-upd():
-		log.Printf("vertex added/updated: %s - msg: %v", vertex.Address, err)
+		//log.Printf("vertex added/updated: %s - msg: %v", vertex.Address, err)
 		return err
 	case <-ctx.Done():
 		log.Printf("Fail on on updateDB: %v", ctx.Err())

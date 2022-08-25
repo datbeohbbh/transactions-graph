@@ -1,12 +1,12 @@
 DIR=$(shell pwd)
 
-LISTENER_DIR=$(DIR)/listener
+ADDR_DIR=$(DIR)/address-manager
 
-gen-proto: 
-	cd $(LISTENER_DIR) && protoc \
+gen-proto-address: 
+	cd $(ADDR_DIR) && protoc \
 	--go_out=. --go_opt=paths=source_relative \
 	--go-grpc_out=. --go-grpc_opt=paths=source_relative \
-	./listener.proto
+	./address.proto
 
 format:
 	go fmt ./...

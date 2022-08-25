@@ -24,8 +24,11 @@ func failedOnError(msg string, err error) {
 }
 
 func main() {
-	mongoConn, err := connectToMongoDB(os.Getenv("ADDR_MONGODB_URI"), os.Getenv("ADDR_MONGO_DATABASE"),
-		os.Getenv("ADDR_MONGO_USERNAME"), os.Getenv("ADDR_MONGO_PASSWORD"))
+	mongoConn, err := connectToMongoDB(
+		os.Getenv("ADDR_MONGODB_URI"),
+		os.Getenv("ADDR_MONGO_DATABASE"),
+		os.Getenv("ADDR_MONGO_USERNAME"),
+		os.Getenv("ADDR_MONGO_PASSWORD"))
 
 	failedOnError("failed on connect to mongoDB", err)
 
@@ -34,7 +37,12 @@ func main() {
 
 	dao := dao.New(DB_NAME, db)
 
-	handler := addressManager.New(mongoConn, dao)
+	ethConn, err := connectToEthereumNode(os.Getenv("NODE_URL"))
+	if err != nil {
+		panic(fmt.Errorf("failed on connect to Ethereum node: %v", err))
+	}
+
+	handler := addressManager.New(mongoConn, dao, ethConn)
 	defer handler.Close()
 
 	grpcServer := grpc.NewServer()

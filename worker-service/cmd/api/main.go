@@ -6,10 +6,13 @@ import (
 	"log"
 	"net"
 	"os"
+	addressManager "worker/address-manager"
+	"worker/consumers"
 	"worker/dao"
 	worker "worker/worker"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
@@ -24,7 +27,11 @@ func main() {
 		panic(fmt.Errorf("failed on connect to Ethereum node: %v", err))
 	}
 
-	mongoConn, err := connectToMongoDB(os.Getenv("MONGODB_URI"), os.Getenv("MONGO_DATABASE"), os.Getenv("MONGO_USERNAME"), os.Getenv("MONGO_PASSWORD"))
+	mongoConn, err := connectToMongoDB(
+		os.Getenv("MONGODB_URI"),
+		os.Getenv("MONGO_DATABASE"),
+		os.Getenv("MONGO_USERNAME"),
+		os.Getenv("MONGO_PASSWORD"))
 	if err != nil {
 		panic(fmt.Errorf("failed on connect to mongo: %v", err))
 	}
@@ -34,12 +41,40 @@ func main() {
 		panic(fmt.Errorf("failed on get graphDB instance: %v", err))
 	}
 
-	blockWorker := worker.New(ethConn, mongoConn, dao)
+	addressManagerRPCConn, err := connectToGRPCServerContext(
+		context.Background(),
+		os.Getenv("NGINX_SERVICE_NAME"),
+		os.Getenv("NGINX_GRPC_PORT"),
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithBlock())
+	if err != nil {
+		panic(fmt.Errorf("failed on connect to address manager RPC server: %v", err))
+	}
+
+	addressClient := addressManager.New(addressManagerRPCConn)
+
+	amqpConn, err := connectToRabbitMQ(
+		os.Getenv("AMQP_USERNAME"),
+		os.Getenv("AMQP_PASSWORD"),
+		os.Getenv("AMQP_HOST"),
+		os.Getenv("AMQP_PORT"))
+	if err != nil {
+		panic(fmt.Errorf("failed on connect to rabbitmq: %v", err))
+	}
+	defer amqpConn.Close()
+
+	consumer, err := consumers.New(amqpConn)
+	if err != nil {
+		panic(fmt.Errorf("failed on create consumer: %v", err))
+	}
+	consumer.SetUp()
+	defer consumer.Close()
+
+	blockWorker := worker.New(ethConn, mongoConn, dao, addressClient, consumer)
 	defer blockWorker.Close()
 
-	worker.RegisterWorkerServer(grpcServer, blockWorker)
-
 	log.Println("Start listening new block")
+
 	go func() {
 		err := blockWorker.Start(context.Background())
 		if err != nil {

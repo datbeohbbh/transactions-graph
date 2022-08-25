@@ -18,6 +18,4 @@ WORKDIR /app
 
 COPY --from=builder /app/Worker /app
 
-RUN mkdir -p /app/db-data
-
 CMD [ "/app/Worker" ]

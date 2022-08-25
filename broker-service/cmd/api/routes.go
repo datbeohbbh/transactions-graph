@@ -12,7 +12,8 @@ type Request struct {
 }
 
 type Response struct {
-	Status  bool   `json:"status"`
+	Error   bool   `json:"error"`
+	Status  string `json:"status"`
 	Message string `json:"message"`
 	Data    any    `json:"data,omitempty"`
 }

@@ -13,7 +13,7 @@ RUN CGO_ENABLED=0 go build -o /app/brokerApp /app/cmd/api
 
 RUN chmod +x /app/brokerApp
 
-FROM alpine
+FROM alpine:latest
 
 WORKDIR /app
 

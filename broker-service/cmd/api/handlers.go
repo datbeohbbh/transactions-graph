@@ -1,7 +1,6 @@
 package main
 
 import (
-	pb "broker/listener"
 	"context"
 	"fmt"
 )
@@ -19,14 +18,13 @@ func (broker *Broker) HandleRequest(ctx context.Context, action, address string)
 }
 
 func (broker *Broker) HandleAddAddress(ctx context.Context, address string) (*Response, error) {
-	client := pb.NewBlockListenerClient(broker.grpcConn)
-	resp, err := client.AddAddress(ctx, &pb.Address{Address: address})
+	status, msg, err := broker.addressManagerClient.AddAddress(ctx, address)
 	if err != nil {
 		return nil, err
 	}
-	payload := Response{
-		Status:  resp.Status,
-		Message: resp.Msg,
-	}
-	return &payload, nil
+	return &Response{
+		Error:   false,
+		Status:  status,
+		Message: msg,
+	}, nil
 }

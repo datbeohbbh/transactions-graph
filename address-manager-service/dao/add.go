@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func (dao *DAO) Add(ctx context.Context, address string) (int, error) {
+func (dao *DAO) Add(ctx context.Context, address, accountType string) (int, error) {
 	exist, err := dao.Exist(ctx, address)
 	if err != nil {
 		return FAIL, err
@@ -17,6 +17,7 @@ func (dao *DAO) Add(ctx context.Context, address string) (int, error) {
 	trackColl := dao.GetCollection("tracking")
 	doc := TrackingAddress{
 		Address:   address,
+		Type:      accountType,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}
