@@ -34,7 +34,8 @@ func (worker *Worker) Start(ctx context.Context) error {
 			}
 			startTime := time.Now()
 			go func() {
-				err = worker.processBlock(ctx, &header)
+				pctx := context.WithValue(ctx, "blockNumber", header.Number.String())
+				err = worker.processBlock(pctx, &header)
 				if err != nil {
 					log.Panicf("failed on process block: %v", err)
 				}

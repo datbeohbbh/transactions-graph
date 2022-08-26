@@ -2,6 +2,7 @@ package address
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 )
@@ -23,10 +24,13 @@ func (addressHandler *AddressHandler) GetAccountType(ctx context.Context, addr s
 }
 
 func (addressHandler *AddressHandler) AccountType(ctx context.Context, address *Address) (*Type, error) {
-	addr := toEthereumAddress(address.Address)
+	addr, err := toEthereumAddress(address.Address)
+	if err != nil {
+		return nil, fmt.Errorf("error on convert to ethereum address: %v", err)
+	}
 	accountType, err := addressHandler.GetAccountType(ctx, addr)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("error on get account type: %v", err)
 	}
 	return &Type{Type: accountType}, nil
 }

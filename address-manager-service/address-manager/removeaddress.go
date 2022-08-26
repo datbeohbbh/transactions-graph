@@ -6,14 +6,14 @@ import (
 )
 
 func (addressHandler *AddressHandler) RemoveAddress(ctx context.Context, address *Address) (*Response, error) {
-	addr := toEthereumAddress(address.Address)
+	addr, err := toEthereumAddress(address.Address)
+	if err != nil {
+		return nil, fmt.Errorf("error on convert to ethereum address: %v", err)
+	}
+
 	status, err := addressHandler.dao.Remove(ctx, addr)
 	if err != nil {
-		return &Response{
-			Error:  true,
-			Msg:    "failed on remove address",
-			Status: Response_StatusCode(status),
-		}, err
+		return nil, fmt.Errorf("error on remove address: %v", err)
 	}
 	return &Response{
 		Error:  false,

@@ -6,24 +6,19 @@ import (
 )
 
 func (addressHandler *AddressHandler) AddAddress(ctx context.Context, address *Address) (*Response, error) {
-	addr := toEthereumAddress(address.Address)
-	accountType, err := addressHandler.GetAccountType(ctx, addr)
-
+	addr, err := toEthereumAddress(address.Address)
 	if err != nil {
-		return &Response{
-			Error:  true,
-			Msg:    "failed on get account type",
-			Status: Response_FAIL,
-		}, err
+		return nil, fmt.Errorf("error on convert to ethereum address: %v", err)
+	}
+
+	accountType, err := addressHandler.GetAccountType(ctx, addr)
+	if err != nil {
+		return nil, fmt.Errorf("error on get account type: %v", err)
 	}
 
 	status, err := addressHandler.dao.Add(ctx, addr, accountType)
 	if err != nil {
-		return &Response{
-			Error:  true,
-			Msg:    "failed on add address",
-			Status: Response_StatusCode(status),
-		}, err
+		return nil, fmt.Errorf("error on add address %s: %v", addr, err)
 	}
 
 	Msg := fmt.Sprintf("address %s has been added and now it is being tracked", addr)

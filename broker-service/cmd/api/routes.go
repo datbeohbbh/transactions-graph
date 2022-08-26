@@ -7,8 +7,9 @@ import (
 )
 
 type Request struct {
-	Action  string `json:"action" binding:"required"`
-	Address string `json:"address" binding:"required"`
+	Class  string `json:"class" binding:"required"`
+	Action string `json:"action" binding:"required"`
+	Data   any    `json:"data,omitempty"`
 }
 
 type Response struct {
@@ -18,16 +19,21 @@ type Response struct {
 	Data    any    `json:"data,omitempty"`
 }
 
+func createResponse(Error_ bool, Status_, Message_ string, Data_ any) *Response {
+	return &Response{
+		Error:   Error_,
+		Status:  Status_,
+		Message: Message_,
+		Data:    Data_,
+	}
+}
+
 func (broker *Broker) routes(c *gin.Context) {
 	req := Request{}
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	resp, err := broker.HandleRequest(c.Request.Context(), req.Action, req.Address)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
+	resp := broker.HandleRequest(c.Request.Context(), &req)
 	c.JSON(http.StatusOK, gin.H{"response": resp})
 }

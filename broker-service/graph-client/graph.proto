@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+package graph;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "/graph";
+
+service GraphData{
+  rpc GetAllVertex(Empty) returns (Vertices){}
+  rpc GetVertexByAddress(VertexRequest) returns (Vertex){}
+}
+
+message Vertex {
+  string address = 1;
+  string type = 2;
+  repeated string txEdges = 3;
+
+  google.protobuf.Timestamp createdAt = 4;
+  google.protobuf.Timestamp updatedAt = 5;
+}
+
+message Vertices {
+  repeated Vertex vertices = 1;
+}
+
+message VertexRequest {
+  string address = 1;
+}
+
+message Empty{}

@@ -7,6 +7,8 @@ import (
 
 	addressManager "broker/address-manager"
 
+	graph "broker/graph-client"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"google.golang.org/grpc"
@@ -19,6 +21,8 @@ var (
 
 type Broker struct {
 	addressManagerClient *addressManager.Client
+
+	graphClient *graph.GraphClient
 }
 
 func main() {
@@ -41,9 +45,11 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("failed on connect to nginx: %v", err))
 	}
+	defer conn.Close()
 
 	broker := Broker{
 		addressManagerClient: addressManager.New(conn),
+		graphClient:          graph.New(conn),
 	}
 
 	r.POST("/broker", broker.routes)

@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 
@@ -37,6 +38,7 @@ func main() {
 		panic(fmt.Errorf("failed on get listen tcp: %v", err))
 	}
 
+	log.Printf("Start listening on port: %s", GRPC_PORT)
 	if err := grpcServer.Serve(lis); err != nil {
 		panic(fmt.Errorf("failed on serve grpc server: %v", err))
 	}

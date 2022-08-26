@@ -4,8 +4,8 @@ import (
 	"context"
 )
 
-func (addressClient *Client) AddAddress(ctx context.Context, address *Address) (*GinResponse, error) {
-	resp, err := addressClient.client.AddAddress(ctx, address)
+func (addressClient *Client) RemoveAddress(ctx context.Context, address *Address) (*GinResponse, error) {
+	resp, err := addressClient.client.RemoveAddress(ctx, address)
 	if err != nil {
 		return createResponse(true, Response_StatusCode_name[int32(Response_FAIL)], err.Error(), nil), err
 	}

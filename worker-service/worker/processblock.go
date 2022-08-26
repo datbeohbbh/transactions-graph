@@ -81,19 +81,22 @@ func (worker *Worker) processBlock(ctx context.Context, header *types.Header) er
 		}
 	}
 
-	err = worker.addRecursiveAddress(ctx, recursive)
+	countRecursiveAdd, err := worker.addRecursiveAddress(ctx, recursive)
 	if err != nil {
 		return fmt.Errorf("failed on add recursive address: %v", err)
 	}
-	log.Println("done processed block: ", header.Number.String())
+	log.Printf("block #%s: added %d recursive address", header.Number.String(), countRecursiveAdd)
 	return nil
 }
 
-func (worker *Worker) addRecursiveAddress(ctx context.Context, recursive []string) error {
+func (worker *Worker) addRecursiveAddress(ctx context.Context, recursive []string) (int, error) {
+	ret := 0
 	for _, recAddr := range recursive {
-		if _, err := worker.addressClient.AddAddress(ctx, recAddr); err != nil {
-			return fmt.Errorf("failed on add recursive address (insert method): %v", err)
+		if f, err := worker.addressClient.AddAddress(ctx, recAddr); err != nil {
+			return 0, fmt.Errorf("failed on add recursive address (insert method): %v", err)
+		} else if f {
+			ret += 1
 		}
 	}
-	return nil
+	return ret, nil
 }

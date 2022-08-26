@@ -2,15 +2,13 @@ package dao
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 
 	"github.com/ethereum/go-ethereum/common"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-func (dao *DAO) GetVertexByAddress(ctx context.Context, address string, excludeFields any) ([]byte, error) {
+func (dao *DAO) GetVertexByAddress(ctx context.Context, address string) (*Vertex, error) {
 	address = common.HexToAddress(address).Hex()
 	tracked, err := dao.ExistedAddress(ctx, "vertex", address)
 	if err != nil {
@@ -23,39 +21,8 @@ func (dao *DAO) GetVertexByAddress(ctx context.Context, address string, excludeF
 	filter := bson.D{{"address", address}}
 	v := Vertex{}
 	err = dao.GetCollection("vertex").FindOne(ctx, filter).Decode(&v)
-
 	if err != nil {
 		return nil, err
 	}
-	result, err := json.Marshal(v)
-	if err != nil {
-		return nil, err
-	}
-	return result, nil
-}
-
-func (dao *DAO) GetAllVertex(ctx context.Context, excludeFields any) ([][]byte, error) {
-	filter := bson.D{{}}
-	opts := options.Find().SetProjection(excludeFields)
-	cur, err := dao.GetCollection("vertex").Find(ctx, filter, opts)
-	if err != nil {
-		return nil, err
-	}
-
-	defer cur.Close(ctx)
-
-	result := [][]byte{}
-	for cur.Next(ctx) {
-		v := Vertex{}
-		err := cur.Decode(&v)
-		if err != nil {
-			return nil, err
-		}
-		b, err := json.Marshal(v)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, b)
-	}
-	return result, nil
+	return &v, nil
 }

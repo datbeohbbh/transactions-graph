@@ -3,7 +3,9 @@ package address
 import (
 	"address-manger/dao"
 	"context"
+	"errors"
 	"fmt"
+	"regexp"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -41,6 +43,10 @@ func (addressHandler *AddressHandler) Close() {
 	addressHandler.ethClient.Close()
 }
 
-func toEthereumAddress(address string) string {
-	return common.HexToAddress(address).Hex()
+func toEthereumAddress(address string) (string, error) {
+	re, _ := regexp.Compile("0x[0-9a-zA-Z]{40}")
+	if !re.MatchString(address) {
+		return "", errors.New("provided address is not valid ethereum address")
+	}
+	return common.HexToAddress(address).Hex(), nil
 }

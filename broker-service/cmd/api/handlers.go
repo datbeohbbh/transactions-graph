@@ -5,26 +5,23 @@ import (
 	"fmt"
 )
 
-func (broker *Broker) HandleRequest(ctx context.Context, action, address string) (*Response, error) {
-	switch action {
-	case "add-address":
-		resp, err := broker.HandleAddAddress(ctx, address)
-		return resp, err
+func (broker *Broker) HandleRequest(ctx context.Context, request *Request) *Response {
+	switch request.Class {
+	case "address":
+		b := broker.addressManagerClient.Handle(ctx, request.Action, request.Data)
+		resp := Response{}
+		writeJson(b, &resp)
+		return &resp
 	case "graph":
-		return nil, nil
+		return nil
+		/* 		b, err := broker.graphClient.Handle(ctx, request.Action, request.Data)
+		   		if err != nil {
+		   			return nil, err
+		   		}
+		   		resp := Response{}
+		   		writeJson(b, resp)
+		   		return &resp, nil */
 	default:
-		return nil, fmt.Errorf("action %s is not supported", action)
+		return createResponse(true, "NOT SUPPORTED CLASS", fmt.Sprintf("class %s is not supported", request.Class), nil)
 	}
-}
-
-func (broker *Broker) HandleAddAddress(ctx context.Context, address string) (*Response, error) {
-	status, msg, err := broker.addressManagerClient.AddAddress(ctx, address)
-	if err != nil {
-		return nil, err
-	}
-	return &Response{
-		Error:   false,
-		Status:  status,
-		Message: msg,
-	}, nil
 }
