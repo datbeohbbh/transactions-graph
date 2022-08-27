@@ -9,7 +9,7 @@ import (
 type Request struct {
 	Class  string `json:"class" binding:"required"`
 	Action string `json:"action" binding:"required"`
-	Data   any    `json:"data,omitempty"`
+	Data   any    `json:"data"`
 }
 
 type Response struct {
