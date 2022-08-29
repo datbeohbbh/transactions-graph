@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	addressManager "broker/address-manager"
+	addressManager "github.com/datbeohbbh/transactions-graph/broker/address-manager"
 
-	graph "broker/graph-client"
+	graph "github.com/datbeohbbh/transactions-graph/broker/graph-client"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

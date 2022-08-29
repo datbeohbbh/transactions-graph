@@ -1,4 +1,4 @@
-module graph-service
+module github.com/datbeohbbh/transactions-graph/graph-service
 
 go 1.19
 

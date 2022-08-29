@@ -1,7 +1,7 @@
 package listener
 
 import (
-	"block-listener/emitter"
+	"github.com/datbeohbbh/transactions-graph/block-listener/emitter"
 
 	"github.com/ethereum/go-ethereum/ethclient"
 )

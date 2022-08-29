@@ -3,7 +3,7 @@ package worker
 import (
 	"context"
 	"time"
-	"worker/dao"
+	"github.com/datbeohbbh/transactions-graph/worker/dao"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"

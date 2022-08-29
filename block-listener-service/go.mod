@@ -1,4 +1,4 @@
-module block-listener
+module github.com/datbeohbbh/transactions-graph/block-listener
 
 go 1.19
 

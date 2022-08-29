@@ -1,4 +1,4 @@
-module address-manger
+module github.com/datbeohbbh/transactions-graph/address-manger
 
 go 1.19
 

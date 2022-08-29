@@ -1,4 +1,4 @@
-module broker
+module github.com/datbeohbbh/transactions-graph/broker
 
 go 1.19
 

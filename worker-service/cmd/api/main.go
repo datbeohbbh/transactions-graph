@@ -6,10 +6,10 @@ import (
 	"log"
 	"net"
 	"os"
-	addressManager "worker/address-manager"
-	"worker/consumers"
-	"worker/dao"
-	worker "worker/worker"
+	addressManager "github.com/datbeohbbh/transactions-graph/worker/address-manager"
+	"github.com/datbeohbbh/transactions-graph/worker/consumers"
+	"github.com/datbeohbbh/transactions-graph/worker/dao"
+	worker "github.com/datbeohbbh/transactions-graph/worker/worker"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -26,6 +26,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("failed on connect to Ethereum node: %v", err))
 	}
+	defer ethConn.Close()
 
 	mongoConn, err := connectToMongoDB(
 		os.Getenv("MONGODB_URI"),
@@ -35,6 +36,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("failed on connect to mongo: %v", err))
 	}
+	defer mongoConn.Disconnect(context.Background())
 
 	dao := dao.New(os.Getenv("MONGO_DATABASE"), connectToDB(mongoConn, os.Getenv("MONGO_DATABASE")))
 	if err != nil {
@@ -70,8 +72,7 @@ func main() {
 	consumer.SetUp()
 	defer consumer.Close()
 
-	blockWorker := worker.New(ethConn, mongoConn, dao, addressClient, consumer)
-	defer blockWorker.Close()
+	blockWorker := worker.New(ethConn, dao, addressClient, consumer)
 
 	log.Println("Start listening new block")
 

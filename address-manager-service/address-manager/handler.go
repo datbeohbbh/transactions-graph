@@ -1,23 +1,20 @@
 package address
 
 import (
-	"address-manger/dao"
-	"context"
 	"errors"
 	"fmt"
 	"regexp"
 
+	"github.com/datbeohbbh/transactions-graph/address-manger/dao"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/ethclient"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 type AddressHandler struct {
 	UnimplementedAddressManagerServer
 
-	mongoClient *mongo.Client
-
-	dao *dao.DAO
+	dao dao.IDAO
 
 	ethClient *ethclient.Client
 }
@@ -28,19 +25,11 @@ func failedOnError(msg string, err error) {
 	}
 }
 
-func New(_mongoClient *mongo.Client, _dao *dao.DAO, ethClient_ *ethclient.Client) *AddressHandler {
+func New(_dao dao.IDAO, ethClient_ *ethclient.Client) *AddressHandler {
 	return &AddressHandler{
-		mongoClient: _mongoClient,
-		dao:         _dao,
-		ethClient:   ethClient_,
+		dao:       _dao,
+		ethClient: ethClient_,
 	}
-}
-
-func (addressHandler *AddressHandler) Close() {
-	if err := addressHandler.mongoClient.Disconnect(context.TODO()); err != nil {
-		failedOnError("failed on disconnect mongoDB", err)
-	}
-	addressHandler.ethClient.Close()
 }
 
 func toEthereumAddress(address string) (string, error) {

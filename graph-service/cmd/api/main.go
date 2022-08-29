@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net"
@@ -8,8 +9,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	"graph-service/dao"
-	gr "graph-service/graph-data"
+	"github.com/datbeohbbh/transactions-graph/graph-service/dao"
+	gr "github.com/datbeohbbh/transactions-graph/graph-service/graph-data"
 )
 
 var (
@@ -21,6 +22,7 @@ func main() {
 	if err != nil {
 		panic(fmt.Errorf("failed on connect to mongo: %v", err))
 	}
+	defer mongoConn.Disconnect(context.Background())
 
 	dao := dao.New(os.Getenv("GR_MONGO_DATABASE"), connectToDB(mongoConn, os.Getenv("GR_MONGO_DATABASE")))
 	if err != nil {

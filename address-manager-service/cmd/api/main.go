@@ -1,12 +1,14 @@
 package main
 
 import (
-	addressManager "address-manger/address-manager"
-	"address-manger/dao"
+	"context"
 	"fmt"
 	"log"
 	"net"
 	"os"
+
+	addressManager "github.com/datbeohbbh/transactions-graph/address-manger/address-manager"
+	"github.com/datbeohbbh/transactions-graph/address-manger/dao"
 
 	"google.golang.org/grpc"
 )
@@ -31,19 +33,20 @@ func main() {
 		os.Getenv("ADDR_MONGO_PASSWORD"))
 
 	failedOnError("failed on connect to mongoDB", err)
+	defer mongoConn.Disconnect(context.Background())
 
 	db := connectToDB(mongoConn, DB_NAME)
 	failedOnError("failed on connect to graphDB", err)
 
-	dao := dao.New(DB_NAME, db)
+	daoInstance := dao.New(DB_NAME, db)
 
 	ethConn, err := connectToEthereumNode(os.Getenv("NODE_URL"))
 	if err != nil {
 		panic(fmt.Errorf("failed on connect to Ethereum node: %v", err))
 	}
+	defer ethConn.Close()
 
-	handler := addressManager.New(mongoConn, dao, ethConn)
-	defer handler.Close()
+	handler := addressManager.New(daoInstance, ethConn)
 
 	grpcServer := grpc.NewServer()
 

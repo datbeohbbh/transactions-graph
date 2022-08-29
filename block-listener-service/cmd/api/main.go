@@ -1,8 +1,8 @@
 package main
 
 import (
-	"block-listener/emitter"
-	"block-listener/listener"
+	"github.com/datbeohbbh/transactions-graph/block-listener/emitter"
+	"github.com/datbeohbbh/transactions-graph/block-listener/listener"
 	"context"
 	"log"
 	"os"

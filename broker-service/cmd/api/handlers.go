@@ -1,8 +1,8 @@
 package main
 
 import (
-	"broker/address-manager"
-	"broker/graph-client"
+	"github.com/datbeohbbh/transactions-graph/broker/address-manager"
+	"github.com/datbeohbbh/transactions-graph/broker/graph-client"
 	"context"
 	"fmt"
 )

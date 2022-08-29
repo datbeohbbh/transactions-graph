@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"log"
 	"time"
-	"worker/dao"
+
+	"github.com/datbeohbbh/transactions-graph/worker/dao"
 
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/core/types"

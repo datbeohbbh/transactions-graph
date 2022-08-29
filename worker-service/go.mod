@@ -1,4 +1,4 @@
-module worker
+module github.com/datbeohbbh/transactions-graph/worker
 
 go 1.19
 
