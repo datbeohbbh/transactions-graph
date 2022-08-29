@@ -29,13 +29,31 @@ func (graph *GraphClient) Handle(ctx context.Context, action string, data any) [
 	case "get-all-address":
 		b := graph.HandleGetAllAddress(ctx, data)
 		return b
+	case "get-by-account-type":
+		b := graph.HandleGetAddressByAccountType(ctx, data)
+		return b
+	case "get-tx-by-object-id":
+		b := graph.HandleGetTxByObjectID(ctx, data)
+		return b
+	case "get-tx-by-tx-hash":
+		b := graph.HandleGetTxByTxHash(ctx, data)
+		return b
+	case "get-tx-by-address":
+		b := graph.HandleGetTxByAddress(ctx, data)
+		return b
+	case "get-tx-by-block-number":
+		b := graph.HandleGetTxByBlockNumber(ctx, data)
+		return b
+	case "get-tx-by-edge-direction":
+		b := graph.HandleGetTxByEdgeDirection(ctx, data)
+		return b
 	default:
 		return readJson(*createResponse(true, "NOT SUPPORTED ACTION", fmt.Sprintf("action %s is not supported", action), nil))
 	}
 }
 
 func (graph *GraphClient) HandleGetByAddress(ctx context.Context, data any) []byte {
-	vertexRequest := VertexRequest{}
+	vertexRequest := Query{}
 	b := readJson(data)
 	writeJson(b, &vertexRequest)
 	ginResp, _ := graph.GetVertexByAddress(ctx, &vertexRequest)
@@ -43,8 +61,62 @@ func (graph *GraphClient) HandleGetByAddress(ctx context.Context, data any) []by
 	return b
 }
 
+func (graph *GraphClient) HandleGetAddressByAccountType(ctx context.Context, data any) []byte {
+	query := Query{}
+	b := readJson(data)
+	writeJson(b, &query)
+	ginResp, _ := graph.GetVertexByAccountType(ctx, &query)
+	b = readJson(*ginResp)
+	return b
+}
+
 func (graph *GraphClient) HandleGetAllAddress(ctx context.Context, data any) []byte {
 	ginResp, _ := graph.GetAllVertex(ctx, &Empty{})
 	b := readJson(*ginResp)
+	return b
+}
+
+func (graph *GraphClient) HandleGetTxByObjectID(ctx context.Context, data any) []byte {
+	query := Query{}
+	b := readJson(data)
+	writeJson(b, &query)
+	ginResp, _ := graph.GetTxByObjectID(ctx, &query)
+	b = readJson(*ginResp)
+	return b
+}
+
+func (graph *GraphClient) HandleGetTxByTxHash(ctx context.Context, data any) []byte {
+	query := Query{}
+	b := readJson(data)
+	writeJson(b, &query)
+	ginResp, _ := graph.GetTxByTxHash(ctx, &query)
+	b = readJson(*ginResp)
+	return b
+}
+
+func (graph *GraphClient) HandleGetTxByAddress(ctx context.Context, data any) []byte {
+	query := Query{}
+	b := readJson(data)
+	writeJson(b, &query)
+	ginResp, _ := graph.GetTxByAddress(ctx, &query)
+	b = readJson(*ginResp)
+	return b
+}
+
+func (graph *GraphClient) HandleGetTxByBlockNumber(ctx context.Context, data any) []byte {
+	query := Query{}
+	b := readJson(data)
+	writeJson(b, &query)
+	ginResp, _ := graph.GetTxByBlockNumber(ctx, &query)
+	b = readJson(*ginResp)
+	return b
+}
+
+func (graph *GraphClient) HandleGetTxByEdgeDirection(ctx context.Context, data any) []byte {
+	query := Query{}
+	b := readJson(data)
+	writeJson(b, &query)
+	ginResp, _ := graph.GetTxByEdgeDirection(ctx, &query)
+	b = readJson(*ginResp)
 	return b
 }

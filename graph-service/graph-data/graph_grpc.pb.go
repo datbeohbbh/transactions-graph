@@ -22,8 +22,14 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GraphDataClient interface {
+	GetVertexByAddress(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Vertex, error)
 	GetAllVertex(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Vertices, error)
-	GetVertexByAddress(ctx context.Context, in *VertexRequest, opts ...grpc.CallOption) (*Vertex, error)
+	GetVertexByAccountType(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Vertices, error)
+	GetTxByObjectID(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Tx, error)
+	GetTxByTxHash(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Tx, error)
+	GetTxByAddress(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
+	GetTxByBlockNumber(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
+	GetTxByEdgeDirection(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 }
 
 type graphDataClient struct {
@@ -32,6 +38,15 @@ type graphDataClient struct {
 
 func NewGraphDataClient(cc grpc.ClientConnInterface) GraphDataClient {
 	return &graphDataClient{cc}
+}
+
+func (c *graphDataClient) GetVertexByAddress(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Vertex, error) {
+	out := new(Vertex)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetVertexByAddress", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *graphDataClient) GetAllVertex(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Vertices, error) {
@@ -43,9 +58,54 @@ func (c *graphDataClient) GetAllVertex(ctx context.Context, in *Empty, opts ...g
 	return out, nil
 }
 
-func (c *graphDataClient) GetVertexByAddress(ctx context.Context, in *VertexRequest, opts ...grpc.CallOption) (*Vertex, error) {
-	out := new(Vertex)
-	err := c.cc.Invoke(ctx, "/graph.GraphData/GetVertexByAddress", in, out, opts...)
+func (c *graphDataClient) GetVertexByAccountType(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Vertices, error) {
+	out := new(Vertices)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetVertexByAccountType", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphDataClient) GetTxByObjectID(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Tx, error) {
+	out := new(Tx)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetTxByObjectID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphDataClient) GetTxByTxHash(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Tx, error) {
+	out := new(Tx)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetTxByTxHash", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphDataClient) GetTxByAddress(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error) {
+	out := new(Txs)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetTxByAddress", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphDataClient) GetTxByBlockNumber(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error) {
+	out := new(Txs)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetTxByBlockNumber", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *graphDataClient) GetTxByEdgeDirection(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error) {
+	out := new(Txs)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetTxByEdgeDirection", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +116,14 @@ func (c *graphDataClient) GetVertexByAddress(ctx context.Context, in *VertexRequ
 // All implementations must embed UnimplementedGraphDataServer
 // for forward compatibility
 type GraphDataServer interface {
+	GetVertexByAddress(context.Context, *Query) (*Vertex, error)
 	GetAllVertex(context.Context, *Empty) (*Vertices, error)
-	GetVertexByAddress(context.Context, *VertexRequest) (*Vertex, error)
+	GetVertexByAccountType(context.Context, *Query) (*Vertices, error)
+	GetTxByObjectID(context.Context, *Query) (*Tx, error)
+	GetTxByTxHash(context.Context, *Query) (*Tx, error)
+	GetTxByAddress(context.Context, *Query) (*Txs, error)
+	GetTxByBlockNumber(context.Context, *Query) (*Txs, error)
+	GetTxByEdgeDirection(context.Context, *Query) (*Txs, error)
 	mustEmbedUnimplementedGraphDataServer()
 }
 
@@ -65,11 +131,29 @@ type GraphDataServer interface {
 type UnimplementedGraphDataServer struct {
 }
 
+func (UnimplementedGraphDataServer) GetVertexByAddress(context.Context, *Query) (*Vertex, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVertexByAddress not implemented")
+}
 func (UnimplementedGraphDataServer) GetAllVertex(context.Context, *Empty) (*Vertices, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllVertex not implemented")
 }
-func (UnimplementedGraphDataServer) GetVertexByAddress(context.Context, *VertexRequest) (*Vertex, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetVertexByAddress not implemented")
+func (UnimplementedGraphDataServer) GetVertexByAccountType(context.Context, *Query) (*Vertices, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetVertexByAccountType not implemented")
+}
+func (UnimplementedGraphDataServer) GetTxByObjectID(context.Context, *Query) (*Tx, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTxByObjectID not implemented")
+}
+func (UnimplementedGraphDataServer) GetTxByTxHash(context.Context, *Query) (*Tx, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTxByTxHash not implemented")
+}
+func (UnimplementedGraphDataServer) GetTxByAddress(context.Context, *Query) (*Txs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTxByAddress not implemented")
+}
+func (UnimplementedGraphDataServer) GetTxByBlockNumber(context.Context, *Query) (*Txs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTxByBlockNumber not implemented")
+}
+func (UnimplementedGraphDataServer) GetTxByEdgeDirection(context.Context, *Query) (*Txs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTxByEdgeDirection not implemented")
 }
 func (UnimplementedGraphDataServer) mustEmbedUnimplementedGraphDataServer() {}
 
@@ -82,6 +166,24 @@ type UnsafeGraphDataServer interface {
 
 func RegisterGraphDataServer(s grpc.ServiceRegistrar, srv GraphDataServer) {
 	s.RegisterService(&GraphData_ServiceDesc, srv)
+}
+
+func _GraphData_GetVertexByAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Query)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetVertexByAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetVertexByAddress",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetVertexByAddress(ctx, req.(*Query))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _GraphData_GetAllVertex_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -102,20 +204,110 @@ func _GraphData_GetAllVertex_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _GraphData_GetVertexByAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(VertexRequest)
+func _GraphData_GetVertexByAccountType_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Query)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(GraphDataServer).GetVertexByAddress(ctx, in)
+		return srv.(GraphDataServer).GetVertexByAccountType(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/graph.GraphData/GetVertexByAddress",
+		FullMethod: "/graph.GraphData/GetVertexByAccountType",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphDataServer).GetVertexByAddress(ctx, req.(*VertexRequest))
+		return srv.(GraphDataServer).GetVertexByAccountType(ctx, req.(*Query))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GraphData_GetTxByObjectID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Query)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetTxByObjectID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetTxByObjectID",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetTxByObjectID(ctx, req.(*Query))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GraphData_GetTxByTxHash_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Query)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetTxByTxHash(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetTxByTxHash",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetTxByTxHash(ctx, req.(*Query))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GraphData_GetTxByAddress_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Query)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetTxByAddress(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetTxByAddress",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetTxByAddress(ctx, req.(*Query))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GraphData_GetTxByBlockNumber_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Query)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetTxByBlockNumber(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetTxByBlockNumber",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetTxByBlockNumber(ctx, req.(*Query))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _GraphData_GetTxByEdgeDirection_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Query)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetTxByEdgeDirection(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetTxByEdgeDirection",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetTxByEdgeDirection(ctx, req.(*Query))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -128,12 +320,36 @@ var GraphData_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*GraphDataServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "GetVertexByAddress",
+			Handler:    _GraphData_GetVertexByAddress_Handler,
+		},
+		{
 			MethodName: "GetAllVertex",
 			Handler:    _GraphData_GetAllVertex_Handler,
 		},
 		{
-			MethodName: "GetVertexByAddress",
-			Handler:    _GraphData_GetVertexByAddress_Handler,
+			MethodName: "GetVertexByAccountType",
+			Handler:    _GraphData_GetVertexByAccountType_Handler,
+		},
+		{
+			MethodName: "GetTxByObjectID",
+			Handler:    _GraphData_GetTxByObjectID_Handler,
+		},
+		{
+			MethodName: "GetTxByTxHash",
+			Handler:    _GraphData_GetTxByTxHash_Handler,
+		},
+		{
+			MethodName: "GetTxByAddress",
+			Handler:    _GraphData_GetTxByAddress_Handler,
+		},
+		{
+			MethodName: "GetTxByBlockNumber",
+			Handler:    _GraphData_GetTxByBlockNumber_Handler,
+		},
+		{
+			MethodName: "GetTxByEdgeDirection",
+			Handler:    _GraphData_GetTxByEdgeDirection_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

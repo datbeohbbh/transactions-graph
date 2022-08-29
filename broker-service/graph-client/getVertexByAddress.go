@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func (graph *GraphClient) GetVertexByAddress(ctx context.Context, vertexRequest *VertexRequest) (*GinResponse, error) {
+func (graph *GraphClient) GetVertexByAddress(ctx context.Context, vertexRequest *Query) (*GinResponse, error) {
 	resp, err := graph.client.GetVertexByAddress(ctx, vertexRequest)
 	if err != nil {
 		return createResponse(true, "FAIL", err.Error(), nil), err

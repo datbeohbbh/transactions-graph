@@ -7,8 +7,15 @@ import "google/protobuf/timestamp.proto";
 option go_package = "/graph";
 
 service GraphData{
+  rpc GetVertexByAddress(Query) returns (Vertex){}
   rpc GetAllVertex(Empty) returns (Vertices){}
-  rpc GetVertexByAddress(VertexRequest) returns (Vertex){}
+  rpc GetVertexByAccountType(Query) returns (Vertices){}
+
+  rpc GetTxByObjectID(Query) returns (Tx){}
+  rpc GetTxByTxHash(Query) returns (Tx){}
+  rpc GetTxByAddress(Query) returns (Txs){}
+  rpc GetTxByBlockNumber(Query) returns (Txs){}
+  rpc GetTxByEdgeDirection(Query) returns (Txs){}
 }
 
 message Vertex {
@@ -24,8 +31,33 @@ message Vertices {
   repeated Vertex vertices = 1;
 }
 
-message VertexRequest {
+message Tx {
+	google.protobuf.Timestamp createdAt = 1;
+	string address = 2;
+	int64 status = 3;
+	string txHash = 4;
+	string blockNumber = 5;
+	string value = 6;
+	repeated string eventLog = 7;
+	int32 direct = 8;
+}
+
+message Txs {
+  repeated Tx Txs = 1;
+}
+
+message Query {
+  // common field 
   string address = 1;
+  string objectID = 2;
+
+  // for Vertex
+  string accountType = 3;
+
+  // for TxEdges 
+  string txHash = 4;
+  string blockNumber = 5;
+  int32 direct = 6;
 }
 
 message Empty{}

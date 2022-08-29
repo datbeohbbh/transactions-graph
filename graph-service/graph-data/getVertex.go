@@ -6,8 +6,8 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-func (graph *GraphData) GetVertexByAddress(ctx context.Context, request *VertexRequest) (*Vertex, error) {
-	addr := request.Address
+func (graph *GraphData) GetVertexByAddress(ctx context.Context, request *Query) (*Vertex, error) {
+	addr := request.GetAddress()
 	vertex, err := graph.dao.GetVertexByAddress(ctx, addr)
 	if err != nil {
 		return nil, err

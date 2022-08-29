@@ -33,9 +33,3 @@ type Event struct {
 	Topics  []string `json:"topics,omitempty" bson:"topics"`
 	Data    string   `json:"data,omitempty" bson:"data"`
 }
-
-type TrackedAddress struct {
-	Address   string    `json:"address" bson:"address"`
-	Type      string    `json:"type,omitempty" bson:"type"`
-	Timestamp time.Time `json:"timestamp,omitempty" bson:"timestamp"`
-}
