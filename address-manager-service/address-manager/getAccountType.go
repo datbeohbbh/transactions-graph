@@ -24,7 +24,7 @@ func (addressHandler *AddressHandler) GetAccountType(ctx context.Context, addr s
 }
 
 func (addressHandler *AddressHandler) AccountType(ctx context.Context, address *Address) (*Type, error) {
-	addr, err := toEthereumAddress(address.Address)
+	addr, err := toEthereumAddress(address.GetAddress())
 	if err != nil {
 		return nil, fmt.Errorf("error on convert to ethereum address: %v", err)
 	}

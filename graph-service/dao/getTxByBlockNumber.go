@@ -7,7 +7,7 @@ import (
 )
 
 func (dao *DAO) GetTxByBlockNumber(ctx context.Context, blockNumber string) ([]*TxEdge, error) {
-	filter := bson.D{{"blockNumber", blockNumber}}
+	filter := bson.D{{Key: "blockNumber", Value: blockNumber}}
 	coll := dao.GetCollection("edge")
 
 	cursor, err := coll.Find(ctx, filter)

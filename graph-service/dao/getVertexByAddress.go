@@ -18,7 +18,7 @@ func (dao *DAO) GetVertexByAddress(ctx context.Context, address string) (*Vertex
 		return nil, fmt.Errorf("address %s has not been tracked yet", address)
 	}
 
-	filter := bson.D{{"address", address}}
+	filter := bson.D{{Key: "address", Value: address}}
 	v := Vertex{}
 	err = dao.GetCollection("vertex").FindOne(ctx, filter).Decode(&v)
 	if err != nil {

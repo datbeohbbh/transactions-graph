@@ -12,7 +12,7 @@ service GraphData{
   rpc GetVertexByAccountType(Query) returns (Vertices){}
 
   rpc GetTxByObjectID(Query) returns (Tx){}
-  rpc GetTxByTxHash(Query) returns (Tx){}
+  rpc GetTxByTxHash(Query) returns (Txs){}
   rpc GetTxByAddress(Query) returns (Txs){}
   rpc GetTxByBlockNumber(Query) returns (Txs){}
   rpc GetTxByEdgeDirection(Query) returns (Txs){}
@@ -39,7 +39,13 @@ message Tx {
 	string blockNumber = 5;
 	string value = 6;
 	repeated string eventLog = 7;
-	int32 direct = 8;
+
+  enum Direction {
+    IN = 0;
+    OUT = 1;
+  }
+
+	string direct = 8;
 }
 
 message Txs {

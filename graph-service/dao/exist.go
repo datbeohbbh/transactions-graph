@@ -8,7 +8,7 @@ import (
 )
 
 func (dao *DAO) ExistedAddress(ctx context.Context, coll, address string) (bool, error) {
-	filter := bson.D{{"address", address}}
+	filter := bson.D{{Key: "address", Value: address}}
 	count, err := dao.GetCollection(coll).CountDocuments(ctx, filter)
 	if err != nil {
 		return false, fmt.Errorf("failed on check existance of address %s", address)

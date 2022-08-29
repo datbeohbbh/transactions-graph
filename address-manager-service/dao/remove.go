@@ -14,7 +14,7 @@ func (dao *DAO) Remove(ctx context.Context, address string) (int, error) {
 	if !exist {
 		return NOT_EXIST, nil
 	}
-	filter := bson.D{{"address", address}}
+	filter := bson.D{{Key: "address", Value: address}}
 	trackColl := dao.GetCollection("tracking")
 	_, err = trackColl.DeleteOne(ctx, filter)
 	if err != nil {

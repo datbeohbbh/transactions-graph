@@ -25,9 +25,9 @@ func (dao *DAO) UpdateVertex(ctx context.Context, vertex *Vertex, txEdge *TxEdge
 
 	vertexColl := dao.GetCollection("vertex")
 
-	filter := bson.D{{"address", vertex.Address}}
-	pushEdgeIds := bson.D{{"$push", bson.D{{"txEdges", edgeIds.(primitive.ObjectID).Hex()}}}}
-	update := bson.D{{"$set", bson.D{{"updatedAt", time.Now()}}}}
+	filter := bson.D{{Key: "address", Value: vertex.Address}}
+	pushEdgeIds := bson.D{{Key: "$push", Value: bson.D{{Key: "txEdges", Value: edgeIds.(primitive.ObjectID).Hex()}}}}
+	update := bson.D{{Key: "$set", Value: bson.D{{Key: "updatedAt", Value: time.Now()}}}}
 
 	if _, err = vertexColl.UpdateOne(ctx, filter, pushEdgeIds); err != nil {
 		return err

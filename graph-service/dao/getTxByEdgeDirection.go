@@ -7,7 +7,7 @@ import (
 )
 
 func (dao *DAO) GetTxByEdgeDirection(ctx context.Context, direction int32) ([]*TxEdge, error) {
-	filter := bson.D{{"direct", direction}}
+	filter := bson.D{{Key: "direct", Value: direction}}
 	coll := dao.GetCollection("edge")
 
 	cursor, err := coll.Find(ctx, filter)

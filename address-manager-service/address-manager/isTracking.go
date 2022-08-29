@@ -6,7 +6,7 @@ import (
 )
 
 func (addressHandler *AddressHandler) IsTracking(ctx context.Context, address *Address) (*Response, error) {
-	addr, err := toEthereumAddress(address.Address)
+	addr, err := toEthereumAddress(address.GetAddress())
 	if err != nil {
 		return nil, fmt.Errorf("error on convert to ethereum address: %v", err)
 	}

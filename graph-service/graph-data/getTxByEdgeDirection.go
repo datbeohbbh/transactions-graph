@@ -22,7 +22,7 @@ func (graph *GraphData) GetTxByEdgeDirection(ctx context.Context, query *Query) 
 			BlockNumber: tx.BlockNumber,
 			Value:       tx.Value,
 			EventLog:    tx.EventLog,
-			Direct:      int32(tx.Direct),
+			Direct:      Tx_Direction_name[int32(tx.Direct)],
 		})
 	}
 	return &result, nil

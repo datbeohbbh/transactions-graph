@@ -7,7 +7,7 @@ import (
 )
 
 func (dao *DAO) GetVertexByAccountType(ctx context.Context, accountType string) ([]*Vertex, error) {
-	filter := bson.D{{"type", accountType}}
+	filter := bson.D{{Key: "type", Value: accountType}}
 	coll := dao.GetCollection("vertex")
 
 	cur, err := coll.Find(ctx, filter)

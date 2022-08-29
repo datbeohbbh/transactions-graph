@@ -63,7 +63,8 @@ func (worker *Worker) processBlock(ctx context.Context, header *types.Header) er
 			}
 
 			if trackedFrom {
-				err := worker.processTx(ctx, &from, to, tx, header, receipt, dao.OutEdge)
+				// in TxEdge: from -> to, to mark as IN edge bc it is a directed edge from `from` to `to`.
+				err := worker.processTx(ctx, &from, to, tx, header, receipt, dao.IN)
 				if err != nil {
 					return fmt.Errorf("failed on process OutEdge %v", err)
 				}
@@ -74,7 +75,7 @@ func (worker *Worker) processBlock(ctx context.Context, header *types.Header) er
 
 			// process `to`
 			if to != nil && trackedTo {
-				err := worker.processTx(ctx, to, &from, tx, header, receipt, dao.InEdge)
+				err := worker.processTx(ctx, to, &from, tx, header, receipt, dao.OUT)
 				if err != nil {
 					return fmt.Errorf("failed on process InEdge %v", err)
 				}

@@ -11,7 +11,7 @@ func (graph *GraphClient) GetTxByEdgeDirection(ctx context.Context, query *Query
 		return createResponse(true, "FAIL", err.Error(), nil), err
 	}
 	return createResponse(false, "OK",
-		fmt.Sprintf("sucessfully get tx by edge direction: %d (0 - out / 1 - in)",
+		fmt.Sprintf("sucessfully get tx by edge direction: %d (0 - IN / 1 - OUT)",
 			query.GetDirect()),
 		*resp), nil
 }

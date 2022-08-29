@@ -26,7 +26,7 @@ type GraphDataClient interface {
 	GetAllVertex(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*Vertices, error)
 	GetVertexByAccountType(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Vertices, error)
 	GetTxByObjectID(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Tx, error)
-	GetTxByTxHash(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Tx, error)
+	GetTxByTxHash(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByAddress(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByBlockNumber(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByEdgeDirection(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
@@ -76,8 +76,8 @@ func (c *graphDataClient) GetTxByObjectID(ctx context.Context, in *Query, opts .
 	return out, nil
 }
 
-func (c *graphDataClient) GetTxByTxHash(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Tx, error) {
-	out := new(Tx)
+func (c *graphDataClient) GetTxByTxHash(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error) {
+	out := new(Txs)
 	err := c.cc.Invoke(ctx, "/graph.GraphData/GetTxByTxHash", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -120,7 +120,7 @@ type GraphDataServer interface {
 	GetAllVertex(context.Context, *Empty) (*Vertices, error)
 	GetVertexByAccountType(context.Context, *Query) (*Vertices, error)
 	GetTxByObjectID(context.Context, *Query) (*Tx, error)
-	GetTxByTxHash(context.Context, *Query) (*Tx, error)
+	GetTxByTxHash(context.Context, *Query) (*Txs, error)
 	GetTxByAddress(context.Context, *Query) (*Txs, error)
 	GetTxByBlockNumber(context.Context, *Query) (*Txs, error)
 	GetTxByEdgeDirection(context.Context, *Query) (*Txs, error)
@@ -143,7 +143,7 @@ func (UnimplementedGraphDataServer) GetVertexByAccountType(context.Context, *Que
 func (UnimplementedGraphDataServer) GetTxByObjectID(context.Context, *Query) (*Tx, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxByObjectID not implemented")
 }
-func (UnimplementedGraphDataServer) GetTxByTxHash(context.Context, *Query) (*Tx, error) {
+func (UnimplementedGraphDataServer) GetTxByTxHash(context.Context, *Query) (*Txs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxByTxHash not implemented")
 }
 func (UnimplementedGraphDataServer) GetTxByAddress(context.Context, *Query) (*Txs, error) {

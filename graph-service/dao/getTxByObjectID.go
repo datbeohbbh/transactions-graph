@@ -12,7 +12,7 @@ func (dao *DAO) GetTxByObjectID(ctx context.Context, objectID string) (*TxEdge, 
 	if err != nil {
 		return nil, err
 	}
-	filter := bson.D{{"_id", id}}
+	filter := bson.D{{Key: "_id", Value: id}}
 	coll := dao.GetCollection("edge")
 
 	result := TxEdge{}

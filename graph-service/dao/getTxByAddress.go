@@ -9,7 +9,7 @@ import (
 
 func (dao *DAO) GetTxByAddress(ctx context.Context, address string) ([]*TxEdge, error) {
 	address = common.HexToAddress(address).Hex()
-	filter := bson.D{{"address", address}}
+	filter := bson.D{{Key: "address", Value: address}}
 	coll := dao.GetCollection("edge")
 
 	cursor, err := coll.Find(ctx, filter)
