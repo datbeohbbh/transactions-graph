@@ -19,4 +19,5 @@ type IDAO interface {
 	GetTxByTxHash(context.Context, string) ([]*TxEdge, error)
 	GetTxByBlockNumber(context.Context, string) ([]*TxEdge, error)
 	GetTxByEdgeDirection(context.Context, int32) ([]*TxEdge, error)
+	GetTxByFilter(context.Context, map[string]string) ([]*TxEdge, error)
 }

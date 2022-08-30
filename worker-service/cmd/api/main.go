@@ -3,13 +3,13 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
-	"net"
-	"os"
 	addressManager "github.com/datbeohbbh/transactions-graph/worker/address-manager"
 	"github.com/datbeohbbh/transactions-graph/worker/consumers"
 	"github.com/datbeohbbh/transactions-graph/worker/dao"
 	worker "github.com/datbeohbbh/transactions-graph/worker/worker"
+	"log"
+	"net"
+	"os"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"

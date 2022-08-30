@@ -47,6 +47,9 @@ func (graph *GraphClient) Handle(ctx context.Context, action string, data any) [
 	case "get-tx-by-edge-direction":
 		b := graph.HandleGetTxByEdgeDirection(ctx, data)
 		return b
+	case "get-tx-by-filter":
+		b := graph.HandleGetTxByFilter(ctx, data)
+		return b
 	default:
 		return readJson(*createResponse(true, "NOT SUPPORTED ACTION", fmt.Sprintf("action %s is not supported", action), nil))
 	}
@@ -117,6 +120,15 @@ func (graph *GraphClient) HandleGetTxByEdgeDirection(ctx context.Context, data a
 	b := readJson(data)
 	writeJson(b, &query)
 	ginResp, _ := graph.GetTxByEdgeDirection(ctx, &query)
+	b = readJson(*ginResp)
+	return b
+}
+
+func (graph *GraphClient) HandleGetTxByFilter(ctx context.Context, data any) []byte {
+	filters := Filters{}
+	b := readJson(data)
+	writeJson(b, &filters)
+	ginResp, _ := graph.GetTxByFilter(ctx, &filters)
 	b = readJson(*ginResp)
 	return b
 }

@@ -14,7 +14,7 @@ type Vertex struct {
 
 const (
 	IN int = iota
-	OUT 
+	OUT
 )
 
 type TxEdge struct {

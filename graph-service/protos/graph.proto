@@ -4,18 +4,23 @@ package graph;
 
 import "google/protobuf/timestamp.proto";
 
+import "graph-render-data.proto";
+
 option go_package = "/graph";
 
-service GraphData{
-  rpc GetVertexByAddress(Query) returns (Vertex){}
-  rpc GetAllVertex(Empty) returns (Vertices){}
-  rpc GetVertexByAccountType(Query) returns (Vertices){}
+service GraphData {
+  rpc GetVertexByAddress(Query) returns (Vertex) {}
+  rpc GetAllVertex(Empty) returns (Vertices) {}
+  rpc GetVertexByAccountType(Query) returns (Vertices) {}
 
-  rpc GetTxByObjectID(Query) returns (Tx){}
-  rpc GetTxByTxHash(Query) returns (Txs){}
-  rpc GetTxByAddress(Query) returns (Txs){}
-  rpc GetTxByBlockNumber(Query) returns (Txs){}
-  rpc GetTxByEdgeDirection(Query) returns (Txs){}
+  rpc GetTxByObjectID(Query) returns (Tx) {}
+  rpc GetTxByTxHash(Query) returns (Txs) {}
+  rpc GetTxByAddress(Query) returns (Txs) {}
+  rpc GetTxByBlockNumber(Query) returns (Txs) {}
+  rpc GetTxByEdgeDirection(Query) returns (Txs) {}
+  rpc GetTxByFilter(Filters) returns (Txs) {}
+
+  rpc GetGraphRenderData(Empty) returns (graphAlgo.GraphRenderData) {}
 }
 
 message Vertex {
@@ -27,43 +32,46 @@ message Vertex {
   google.protobuf.Timestamp updatedAt = 5;
 }
 
-message Vertices {
-  repeated Vertex vertices = 1;
-}
+message Vertices { repeated Vertex vertices = 1; }
 
 message Tx {
-	google.protobuf.Timestamp createdAt = 1;
-	string address = 2;
-	int64 status = 3;
-	string txHash = 4;
-	string blockNumber = 5;
-	string value = 6;
-	repeated string eventLog = 7;
+  google.protobuf.Timestamp createdAt = 1;
+  string address = 2;
+  int64 status = 3;
+  string txHash = 4;
+  string blockNumber = 5;
+  string value = 6;
+  repeated string eventLog = 7;
 
   enum Direction {
     IN = 0;
     OUT = 1;
   }
 
-	string direct = 8;
+  string direct = 8;
 }
 
-message Txs {
-  repeated Tx Txs = 1;
-}
+message Txs { repeated Tx Txs = 1; }
 
 message Query {
-  // common field 
+  // common field
   string address = 1;
   string objectID = 2;
 
   // for Vertex
   string accountType = 3;
 
-  // for TxEdges 
+  // for TxEdges
   string txHash = 4;
   string blockNumber = 5;
-  int32 direct = 6;
+  string direct = 6;
 }
 
-message Empty{}
+message Filter {
+  string key = 1;
+  string value = 2;
+}
+
+message Filters { repeated Filter filter = 1; }
+
+message Empty {}

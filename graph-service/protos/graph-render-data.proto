@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package graphAlgo;
+
+option go_package = "github.com/datbeohbbh/transactions-graph/graph-service/graphAlgo";
+
+import "google/protobuf/timestamp.proto";
+
+message Vertex {
+  uint64 nodeID = 1;
+  uint64 depth = 2;
+  string address = 3;
+  string type = 4;
+}
+
+message Transaction {
+  uint64 txID = 1;
+  string txHash = 2;
+  string direction = 3;
+  google.protobuf.Timestamp createAt = 4;
+}
+
+message Link {
+  uint64 from = 1;
+  uint64 to = 2;
+  repeated uint64 edgesInfo = 3;
+}
+
+message GraphRenderData {
+  repeated Vertex Vertices = 1;
+  repeated Transaction Transactions = 2;
+  repeated Link Links = 3;
+}

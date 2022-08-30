@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 
 	"github.com/datbeohbbh/transactions-graph/graph-service/dao"
-	gr "github.com/datbeohbbh/transactions-graph/graph-service/graph-data"
+	gr "github.com/datbeohbbh/transactions-graph/graph-service/graph"
 )
 
 var (

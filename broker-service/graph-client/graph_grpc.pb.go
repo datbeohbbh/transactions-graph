@@ -30,6 +30,7 @@ type GraphDataClient interface {
 	GetTxByAddress(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByBlockNumber(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByEdgeDirection(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
+	GetTxByFilter(ctx context.Context, in *Filters, opts ...grpc.CallOption) (*Txs, error)
 }
 
 type graphDataClient struct {
@@ -112,6 +113,15 @@ func (c *graphDataClient) GetTxByEdgeDirection(ctx context.Context, in *Query, o
 	return out, nil
 }
 
+func (c *graphDataClient) GetTxByFilter(ctx context.Context, in *Filters, opts ...grpc.CallOption) (*Txs, error) {
+	out := new(Txs)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetTxByFilter", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GraphDataServer is the server API for GraphData service.
 // All implementations must embed UnimplementedGraphDataServer
 // for forward compatibility
@@ -124,6 +134,7 @@ type GraphDataServer interface {
 	GetTxByAddress(context.Context, *Query) (*Txs, error)
 	GetTxByBlockNumber(context.Context, *Query) (*Txs, error)
 	GetTxByEdgeDirection(context.Context, *Query) (*Txs, error)
+	GetTxByFilter(context.Context, *Filters) (*Txs, error)
 	mustEmbedUnimplementedGraphDataServer()
 }
 
@@ -154,6 +165,9 @@ func (UnimplementedGraphDataServer) GetTxByBlockNumber(context.Context, *Query) 
 }
 func (UnimplementedGraphDataServer) GetTxByEdgeDirection(context.Context, *Query) (*Txs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxByEdgeDirection not implemented")
+}
+func (UnimplementedGraphDataServer) GetTxByFilter(context.Context, *Filters) (*Txs, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTxByFilter not implemented")
 }
 func (UnimplementedGraphDataServer) mustEmbedUnimplementedGraphDataServer() {}
 
@@ -312,6 +326,24 @@ func _GraphData_GetTxByEdgeDirection_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GraphData_GetTxByFilter_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Filters)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetTxByFilter(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetTxByFilter",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetTxByFilter(ctx, req.(*Filters))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GraphData_ServiceDesc is the grpc.ServiceDesc for GraphData service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -350,6 +382,10 @@ var GraphData_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTxByEdgeDirection",
 			Handler:    _GraphData_GetTxByEdgeDirection_Handler,
+		},
+		{
+			MethodName: "GetTxByFilter",
+			Handler:    _GraphData_GetTxByFilter_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

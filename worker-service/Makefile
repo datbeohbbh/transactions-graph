@@ -12,8 +12,13 @@ gen-address-manager:
 	address.proto
 
 
-format:
-	go fmt ./...
+format-go:
+	go fmt ./... 
+	
+format-proto:
+	clang-format -i ./protos/*.proto
+
+format: format-go format-proto
 
 gen-proto: gen-address-manager
 

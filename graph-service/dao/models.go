@@ -13,9 +13,14 @@ type Vertex struct {
 }
 
 const (
-	OutEdge int = iota
-	InEdge
+	IN int = iota
+	OUT
 )
+
+var DirectName = map[string]int{
+	"IN":  IN,
+	"OUT": OUT,
+}
 
 type TxEdge struct {
 	CreatedAt   time.Time `json:"createdAt,omitempty" bson:"createdAt"`

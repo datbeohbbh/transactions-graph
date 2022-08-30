@@ -2,12 +2,17 @@ package graph
 
 import (
 	"context"
+	"fmt"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (graph *GraphData) GetTxByEdgeDirection(ctx context.Context, query *Query) (*Txs, error) {
-	txs, err := graph.dao.GetTxByEdgeDirection(ctx, query.GetDirect())
+	d, ok := Tx_Direction_value[query.GetDirect()]
+	if !ok {
+		return nil, fmt.Errorf("failed on get direct: %s (direction should be IN/OUT)", query.GetDirect())
+	}
+	txs, err := graph.dao.GetTxByEdgeDirection(ctx, d)
 	if err != nil {
 		return nil, err
 	}

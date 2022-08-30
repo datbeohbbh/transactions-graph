@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/datbeohbbh/transactions-graph/broker/address-manager"
-	"github.com/datbeohbbh/transactions-graph/broker/graph-client"
 	"context"
 	"fmt"
+	"github.com/datbeohbbh/transactions-graph/broker/address-manager"
+	"github.com/datbeohbbh/transactions-graph/broker/graph-client"
 )
 
 func (broker *Broker) HandleRequest(ctx context.Context, request *Request) *Response {

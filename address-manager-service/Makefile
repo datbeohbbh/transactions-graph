@@ -9,8 +9,13 @@ gen-address-manager:
 	--go-grpc_out=./address-manager --go-grpc_opt=paths=source_relative \
 	address.proto
 
-format:
-	go fmt ./...
+format-go:
+	go fmt ./... 
+	
+format-proto:
+	clang-format -i ./protos/*.proto
+
+format: format-go format-proto
 
 note:
 	echo "all address must be the string obtain from common.Address.Hex()"

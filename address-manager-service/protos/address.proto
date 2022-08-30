@@ -2,25 +2,21 @@ syntax = "proto3";
 
 package address;
 
-option go_package="/address";
+option go_package = "/address";
 
 service AddressManager {
-  rpc AddAddress(Address) returns (Response){}
-  rpc RemoveAddress(Address) returns (Response){};
+  rpc AddAddress(Address) returns (Response) {}
+  rpc RemoveAddress(Address) returns (Response) {};
   rpc IsTracking(Address) returns (Response) {};
 
   rpc AccountType(Address) returns (Type) {};
 }
 
-message Address {
-  string address = 1;
-}
+message Address { string address = 1; }
 
-message Type {
-  string type = 1;
-}
+message Type { string type = 1; }
 
-message Response{
+message Response {
   bool error = 1;
   string msg = 2;
 

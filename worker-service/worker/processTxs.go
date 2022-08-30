@@ -2,8 +2,8 @@ package worker
 
 import (
 	"context"
-	"time"
 	"github.com/datbeohbbh/transactions-graph/worker/dao"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
