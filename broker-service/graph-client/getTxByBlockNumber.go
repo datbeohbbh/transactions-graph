@@ -10,5 +10,5 @@ func (graph *GraphClient) GetTxByBlockNumber(ctx context.Context, query *Query) 
 	if err != nil {
 		return createResponse(true, "FAIL", err.Error(), nil), err
 	}
-	return createResponse(false, "OK", fmt.Sprintf("sucessfully get tx by block number: %s", query.GetBlockNumber()), *resp), nil
+	return createResponse(false, "OK", fmt.Sprintf("sucessfully get tx by block number: %s", query.GetBlockNumber()), resp), nil
 }

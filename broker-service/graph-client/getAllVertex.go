@@ -7,5 +7,5 @@ func (graph *GraphClient) GetAllVertex(ctx context.Context, emptyField *Empty) (
 	if err != nil {
 		return createResponse(true, "FAIL", err.Error(), nil), err
 	}
-	return createResponse(false, "OK", "successfully get all vertex", *resp), nil
+	return createResponse(false, "OK", "successfully get all vertex", resp), nil
 }

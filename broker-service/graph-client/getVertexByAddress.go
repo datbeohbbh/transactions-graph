@@ -10,5 +10,5 @@ func (graph *GraphClient) GetVertexByAddress(ctx context.Context, vertexRequest 
 	if err != nil {
 		return createResponse(true, "FAIL", err.Error(), nil), err
 	}
-	return createResponse(false, "OK", fmt.Sprintf("sucessfully get address %s", vertexRequest.GetAddress()), *resp), nil
+	return createResponse(false, "OK", fmt.Sprintf("sucessfully get address %s", vertexRequest.GetAddress()), resp), nil
 }

@@ -10,5 +10,5 @@ func (graph *GraphClient) GetTxByObjectID(ctx context.Context, query *Query) (*G
 	if err != nil {
 		return createResponse(true, "FAIL", err.Error(), nil), err
 	}
-	return createResponse(false, "OK", fmt.Sprintf("sucessfully get tx by objectID: %s", query.GetObjectID()), *resp), nil
+	return createResponse(false, "OK", fmt.Sprintf("sucessfully get tx by objectID: %s", query.GetObjectID()), resp), nil
 }

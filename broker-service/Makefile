@@ -16,7 +16,13 @@ gen-graph:
 	--go-grpc_out=./graph-client --go-grpc_opt=paths=source_relative \
 	graph.proto
 
-gen-proto: gen-address-manager gen-graph
+gen-graph-render-data:
+	protoc \
+	--proto_path=./protos \
+	--go_out=./graphAlgo --go_opt=paths=source_relative \
+	graph-render-data.proto
+
+gen-proto: gen-address-manager gen-graph-render-data gen-graph
 
 format-go:
 	go fmt ./... 
@@ -24,4 +30,4 @@ format-go:
 format-proto:
 	clang-format -i ./protos/*.proto
 
-format: format-go format-proto
+format: format-go format-proto 

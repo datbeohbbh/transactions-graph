@@ -2,9 +2,11 @@ syntax = "proto3";
 
 package graph;
 
+option go_package = "github.com/datbeohbbh/transactions-graph/broker/graph";
+
 import "google/protobuf/timestamp.proto";
 
-option go_package = "/graph";
+import "graph-render-data.proto";
 
 service GraphData {
   rpc GetVertexByAddress(Query) returns (Vertex) {}
@@ -17,6 +19,8 @@ service GraphData {
   rpc GetTxByBlockNumber(Query) returns (Txs) {}
   rpc GetTxByEdgeDirection(Query) returns (Txs) {}
   rpc GetTxByFilter(Filters) returns (Txs) {}
+
+  rpc GetGraphRenderData(graphAlgo.Query) returns (graphAlgo.GraphRenderData) {}
 }
 
 message Vertex {

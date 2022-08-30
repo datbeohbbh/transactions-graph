@@ -8,6 +8,7 @@ package graph
 
 import (
 	context "context"
+	graphAlgo "github.com/datbeohbbh/transactions-graph/broker/graphAlgo"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -31,6 +32,7 @@ type GraphDataClient interface {
 	GetTxByBlockNumber(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByEdgeDirection(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByFilter(ctx context.Context, in *Filters, opts ...grpc.CallOption) (*Txs, error)
+	GetGraphRenderData(ctx context.Context, in *graphAlgo.Query, opts ...grpc.CallOption) (*graphAlgo.GraphRenderData, error)
 }
 
 type graphDataClient struct {
@@ -122,6 +124,15 @@ func (c *graphDataClient) GetTxByFilter(ctx context.Context, in *Filters, opts .
 	return out, nil
 }
 
+func (c *graphDataClient) GetGraphRenderData(ctx context.Context, in *graphAlgo.Query, opts ...grpc.CallOption) (*graphAlgo.GraphRenderData, error) {
+	out := new(graphAlgo.GraphRenderData)
+	err := c.cc.Invoke(ctx, "/graph.GraphData/GetGraphRenderData", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GraphDataServer is the server API for GraphData service.
 // All implementations must embed UnimplementedGraphDataServer
 // for forward compatibility
@@ -135,6 +146,7 @@ type GraphDataServer interface {
 	GetTxByBlockNumber(context.Context, *Query) (*Txs, error)
 	GetTxByEdgeDirection(context.Context, *Query) (*Txs, error)
 	GetTxByFilter(context.Context, *Filters) (*Txs, error)
+	GetGraphRenderData(context.Context, *graphAlgo.Query) (*graphAlgo.GraphRenderData, error)
 	mustEmbedUnimplementedGraphDataServer()
 }
 
@@ -168,6 +180,9 @@ func (UnimplementedGraphDataServer) GetTxByEdgeDirection(context.Context, *Query
 }
 func (UnimplementedGraphDataServer) GetTxByFilter(context.Context, *Filters) (*Txs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxByFilter not implemented")
+}
+func (UnimplementedGraphDataServer) GetGraphRenderData(context.Context, *graphAlgo.Query) (*graphAlgo.GraphRenderData, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGraphRenderData not implemented")
 }
 func (UnimplementedGraphDataServer) mustEmbedUnimplementedGraphDataServer() {}
 
@@ -344,6 +359,24 @@ func _GraphData_GetTxByFilter_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _GraphData_GetGraphRenderData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(graphAlgo.Query)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GraphDataServer).GetGraphRenderData(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/graph.GraphData/GetGraphRenderData",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GraphDataServer).GetGraphRenderData(ctx, req.(*graphAlgo.Query))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // GraphData_ServiceDesc is the grpc.ServiceDesc for GraphData service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -386,6 +419,10 @@ var GraphData_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTxByFilter",
 			Handler:    _GraphData_GetTxByFilter_Handler,
+		},
+		{
+			MethodName: "GetGraphRenderData",
+			Handler:    _GraphData_GetGraphRenderData_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

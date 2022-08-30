@@ -15,7 +15,7 @@ services:
       - rabbitmq
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: 6
     env_file:
       - ./env/worker-service.env
     

@@ -10,5 +10,5 @@ func (graph *GraphClient) GetTxByTxHash(ctx context.Context, query *Query) (*Gin
 	if err != nil {
 		return createResponse(true, "FAIL", err.Error(), nil), err
 	}
-	return createResponse(false, "OK", fmt.Sprintf("sucessfully get tx by TxHash: %s", query.GetTxHash()), *resp), nil
+	return createResponse(false, "OK", fmt.Sprintf("sucessfully get tx by TxHash: %s", query.GetTxHash()), resp), nil
 }

@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package address;
 
-option go_package = "/address";
+option go_package = "github.com/datbeohbbh/transactions-graph/address-manager/address";
 
 service AddressManager {
   rpc AddAddress(Address) returns (Response) {}

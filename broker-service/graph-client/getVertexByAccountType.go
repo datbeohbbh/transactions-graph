@@ -10,5 +10,5 @@ func (graph *GraphClient) GetVertexByAccountType(ctx context.Context, query *Que
 	if err != nil {
 		return createResponse(true, "FAIL", err.Error(), nil), err
 	}
-	return createResponse(false, "OK", fmt.Sprintf("sucessfully get address by type: %s", query.GetAccountType()), *resp), nil
+	return createResponse(false, "OK", fmt.Sprintf("sucessfully get address by type: %s", query.GetAccountType()), resp), nil
 }

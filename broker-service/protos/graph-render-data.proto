@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package graphAlgo;
 
-option go_package = "github.com/datbeohbbh/transactions-graph/graph-service/graphAlgo";
+option go_package = "github.com/datbeohbbh/transactions-graph/broker/graphAlgo";
 
 import "google/protobuf/timestamp.proto";
 

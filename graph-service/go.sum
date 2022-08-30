@@ -2,6 +2,10 @@ cloud.google.com/go v0.26.0/go.mod h1:aQUYkXzVsufM+DwF1aE+0xfcU+56JwCaLick0ClmMT
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/census-instrumentation/opencensus-proto v0.2.1/go.mod h1:f6KPmirojxKA12rnyqOA5BBL4O983OfeGPqjHWSTneU=
 github.com/client9/misspell v0.3.4/go.mod h1:qj6jICC3Q7zFZvVWo7KLAzC3yx5G7kyvSDkc90ppPyw=
+github.com/datbeohbbh/go-utils v0.0.0-20220804102257-b37dbc9ff5cd h1:CeynJ08CG/1xKx0fRQYYyxguGJrLYoIhth5314gI3b4=
+github.com/datbeohbbh/go-utils v0.0.0-20220804102257-b37dbc9ff5cd/go.mod h1:naVkF+34nNULoQSiU3WQl0VgIrmn0JDsdzpbDp3fdSo=
+github.com/datbeohbbh/go-utils v0.0.0-20220830120239-67c9586281da h1:QOfLSQp9nqiHhMu1rVlDwlTPX0jeqGnmc8CzbWGU4VI=
+github.com/datbeohbbh/go-utils v0.0.0-20220830120239-67c9586281da/go.mod h1:naVkF+34nNULoQSiU3WQl0VgIrmn0JDsdzpbDp3fdSo=
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=

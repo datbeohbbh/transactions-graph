@@ -6,7 +6,7 @@ import "google/protobuf/timestamp.proto";
 
 import "graph-render-data.proto";
 
-option go_package = "/graph";
+option go_package = "github.com/datbeohbbh/transactions-graph/graph-service/graph";
 
 service GraphData {
   rpc GetVertexByAddress(Query) returns (Vertex) {}
@@ -20,7 +20,7 @@ service GraphData {
   rpc GetTxByEdgeDirection(Query) returns (Txs) {}
   rpc GetTxByFilter(Filters) returns (Txs) {}
 
-  rpc GetGraphRenderData(Empty) returns (graphAlgo.GraphRenderData) {}
+  rpc GetGraphRenderData(graphAlgo.Query) returns (graphAlgo.GraphRenderData) {}
 }
 
 message Vertex {

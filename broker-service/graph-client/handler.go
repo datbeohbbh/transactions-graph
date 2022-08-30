@@ -3,6 +3,10 @@ package graph
 import (
 	context "context"
 	"fmt"
+	"time"
+
+	"github.com/datbeohbbh/transactions-graph/broker/graphAlgo"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type GinResponse struct {
@@ -49,6 +53,9 @@ func (graph *GraphClient) Handle(ctx context.Context, action string, data any) [
 		return b
 	case "get-tx-by-filter":
 		b := graph.HandleGetTxByFilter(ctx, data)
+		return b
+	case "build-graph":
+		b := graph.HandleBuildGraph(ctx, data)
 		return b
 	default:
 		return readJson(*createResponse(true, "NOT SUPPORTED ACTION", fmt.Sprintf("action %s is not supported", action), nil))
@@ -129,6 +136,38 @@ func (graph *GraphClient) HandleGetTxByFilter(ctx context.Context, data any) []b
 	b := readJson(data)
 	writeJson(b, &filters)
 	ginResp, _ := graph.GetTxByFilter(ctx, &filters)
+	b = readJson(*ginResp)
+	return b
+}
+
+func (graph *GraphClient) HandleBuildGraph(ctx context.Context, data any) []byte {
+	type Data struct {
+		Year  int `json:"year"`
+		Month int `json:"month"`
+		Day   int `json:"day"`
+		Hour  int `json:"hour"`
+		Min   int `json:"min"`
+		Sec   int `json:"sec"`
+	}
+	b := readJson(data)
+	date := Data{}
+	writeJson(b, &date)
+	completedTime := time.Date(
+		date.Year,
+		time.Month(date.Month),
+		date.Day,
+		date.Hour,
+		date.Min,
+		date.Sec,
+		0,
+		time.UTC,
+	)
+
+	query := graphAlgo.Query{}
+	b = readJson(data)
+	writeJson(b, &query)
+	query.TxCompletedBefore = timestamppb.New(completedTime)
+	ginResp, _ := graph.GetGraphRenderData(ctx, &query)
 	b = readJson(*ginResp)
 	return b
 }

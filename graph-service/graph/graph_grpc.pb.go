@@ -32,7 +32,7 @@ type GraphDataClient interface {
 	GetTxByBlockNumber(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByEdgeDirection(ctx context.Context, in *Query, opts ...grpc.CallOption) (*Txs, error)
 	GetTxByFilter(ctx context.Context, in *Filters, opts ...grpc.CallOption) (*Txs, error)
-	GetGraphRenderData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*graphAlgo.GraphRenderData, error)
+	GetGraphRenderData(ctx context.Context, in *graphAlgo.Query, opts ...grpc.CallOption) (*graphAlgo.GraphRenderData, error)
 }
 
 type graphDataClient struct {
@@ -124,7 +124,7 @@ func (c *graphDataClient) GetTxByFilter(ctx context.Context, in *Filters, opts .
 	return out, nil
 }
 
-func (c *graphDataClient) GetGraphRenderData(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*graphAlgo.GraphRenderData, error) {
+func (c *graphDataClient) GetGraphRenderData(ctx context.Context, in *graphAlgo.Query, opts ...grpc.CallOption) (*graphAlgo.GraphRenderData, error) {
 	out := new(graphAlgo.GraphRenderData)
 	err := c.cc.Invoke(ctx, "/graph.GraphData/GetGraphRenderData", in, out, opts...)
 	if err != nil {
@@ -146,7 +146,7 @@ type GraphDataServer interface {
 	GetTxByBlockNumber(context.Context, *Query) (*Txs, error)
 	GetTxByEdgeDirection(context.Context, *Query) (*Txs, error)
 	GetTxByFilter(context.Context, *Filters) (*Txs, error)
-	GetGraphRenderData(context.Context, *Empty) (*graphAlgo.GraphRenderData, error)
+	GetGraphRenderData(context.Context, *graphAlgo.Query) (*graphAlgo.GraphRenderData, error)
 	mustEmbedUnimplementedGraphDataServer()
 }
 
@@ -181,7 +181,7 @@ func (UnimplementedGraphDataServer) GetTxByEdgeDirection(context.Context, *Query
 func (UnimplementedGraphDataServer) GetTxByFilter(context.Context, *Filters) (*Txs, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTxByFilter not implemented")
 }
-func (UnimplementedGraphDataServer) GetGraphRenderData(context.Context, *Empty) (*graphAlgo.GraphRenderData, error) {
+func (UnimplementedGraphDataServer) GetGraphRenderData(context.Context, *graphAlgo.Query) (*graphAlgo.GraphRenderData, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetGraphRenderData not implemented")
 }
 func (UnimplementedGraphDataServer) mustEmbedUnimplementedGraphDataServer() {}
@@ -360,7 +360,7 @@ func _GraphData_GetTxByFilter_Handler(srv interface{}, ctx context.Context, dec 
 }
 
 func _GraphData_GetGraphRenderData_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Empty)
+	in := new(graphAlgo.Query)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -372,7 +372,7 @@ func _GraphData_GetGraphRenderData_Handler(srv interface{}, ctx context.Context,
 		FullMethod: "/graph.GraphData/GetGraphRenderData",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(GraphDataServer).GetGraphRenderData(ctx, req.(*Empty))
+		return srv.(GraphDataServer).GetGraphRenderData(ctx, req.(*graphAlgo.Query))
 	}
 	return interceptor(ctx, in, info, handler)
 }
