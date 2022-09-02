@@ -2,10 +2,14 @@ package main
 
 import (
 	"context"
-	"github.com/datbeohbbh/transactions-graph/block-listener/emitter"
-	"github.com/datbeohbbh/transactions-graph/block-listener/listener"
 	"log"
 	"os"
+
+	"github.com/datbeohbbh/transactions-graph/block-listener/amqpClient"
+	"github.com/datbeohbbh/transactions-graph/block-listener/emitter"
+	"github.com/datbeohbbh/transactions-graph/block-listener/ethClient"
+	api "github.com/datbeohbbh/transactions-graph/block-listener/interfaces"
+	"github.com/datbeohbbh/transactions-graph/block-listener/listener"
 )
 
 func failedOnError(msg string, err error) {
@@ -15,19 +19,17 @@ func failedOnError(msg string, err error) {
 }
 
 func main() {
-	ethClient, err := connectToEthereumNode(os.Getenv("NODE_URL"))
-	failedOnError("failed on connect to Ethereum node", err)
-	defer ethClient.Close()
+	var blockChainNetworkClient api.EthApi = ethClient.New()
+	err := blockChainNetworkClient.Connect(context.Background())
+	failedOnError("failed on connect to node client", err)
+	defer blockChainNetworkClient.Close()
 
-	amqpConn, err := connectToRabbitMQ(
-		os.Getenv("AMQP_USERNAME"),
-		os.Getenv("AMQP_PASSWORD"),
-		os.Getenv("AMQP_HOST"),
-		os.Getenv("AMQP_PORT"))
+	var messageBrokerClient api.AmqpApi = amqpClient.New()
+	err = messageBrokerClient.Connect(context.Background())
 	failedOnError("failed on connect to rabbitmq", err)
-	defer amqpConn.Close()
+	defer messageBrokerClient.Close()
 
-	emitter, err := emitter.New(amqpConn)
+	emitter, err := emitter.New(messageBrokerClient)
 	failedOnError("failed on create emitter instance", err)
 	emitter.SetUp(
 		os.Getenv("EXCHANGE_NAME"),
@@ -37,9 +39,8 @@ func main() {
 		false,
 		false,
 		nil)
-	defer emitter.Close()
 
-	blockListener := listener.New(ethClient, emitter)
+	blockListener := listener.New(blockChainNetworkClient, emitter)
 	err = blockListener.Start(
 		context.Background(),
 		os.Getenv("EXCHANGE_NAME"),

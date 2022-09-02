@@ -7,7 +7,7 @@ import (
 )
 
 func (emitter *Emitter) Publish(ctx context.Context, exchange, key string, mandatory, immediate bool, msg amqp.Publishing) error {
-	err := emitter.channel.PublishWithContext(
+	err := emitter.amqpClient.Publish(
 		ctx,
 		exchange,
 		key,

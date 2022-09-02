@@ -1,19 +1,17 @@
 package emitter
 
-import amqp "github.com/rabbitmq/amqp091-go"
+import (
+	api "github.com/datbeohbbh/transactions-graph/block-listener/interfaces"
+)
 
 type Emitter struct {
-	channel *amqp.Channel
+	amqpClient api.AmqpApi
 }
 
-func New(amqpConn_ *amqp.Connection) (*Emitter, error) {
-	ch, err := amqpConn_.Channel()
+func New(amqpApi api.AmqpApi) (*Emitter, error) {
+	err := amqpApi.GetChannel()
 	if err != nil {
 		return nil, err
 	}
-	return &Emitter{channel: ch}, nil
-}
-
-func (emitter *Emitter) Close() {
-	emitter.channel.Close()
+	return &Emitter{amqpClient: amqpApi}, nil
 }

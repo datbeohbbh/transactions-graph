@@ -3,7 +3,7 @@ module github.com/datbeohbbh/transactions-graph/graph-service
 go 1.19
 
 require (
-	github.com/datbeohbbh/go-utils v0.0.0-20220830120239-67c9586281da
+	github.com/datbeohbbh/go-utils v0.0.0-20220831040953-9c777bdefbb9
 	github.com/ethereum/go-ethereum v1.10.23
 	github.com/golang/protobuf v1.5.2
 	go.mongodb.org/mongo-driver v1.10.1

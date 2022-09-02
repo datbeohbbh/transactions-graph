@@ -2,18 +2,17 @@ package listener
 
 import (
 	"github.com/datbeohbbh/transactions-graph/block-listener/emitter"
-
-	"github.com/ethereum/go-ethereum/ethclient"
+	api "github.com/datbeohbbh/transactions-graph/block-listener/interfaces"
 )
 
 type BlockListener struct {
-	ethClient *ethclient.Client
-	emitter   *emitter.Emitter
+	nodeClient api.EthApi
+	emitter    *emitter.Emitter
 }
 
-func New(ethClient_ *ethclient.Client, emitter_ *emitter.Emitter) *BlockListener {
+func New(ethClient api.EthApi, emitter_ *emitter.Emitter) *BlockListener {
 	return &BlockListener{
-		ethClient: ethClient_,
-		emitter:   emitter_,
+		nodeClient: ethClient,
+		emitter:    emitter_,
 	}
 }
